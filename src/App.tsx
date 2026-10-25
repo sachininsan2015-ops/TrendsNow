@@ -226,7 +226,7 @@ export default function App() {
               <Sparkles className="w-4 h-4" /> Creator Studio / Hub
             </button>
             
-            {/* ADMIN DASHBOARD LINK: Appears ONLY when logged in via ?admin=true */}
+            {/* ADMIN DASHBOARD LINK: Appears ONLY when ?admin=true is in URL */}
             {isUserAdmin && (
               <button onClick={() => setActiveTab('admin')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'admin' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
                 <Settings className="w-4 h-4" /> Admin Dashboard
