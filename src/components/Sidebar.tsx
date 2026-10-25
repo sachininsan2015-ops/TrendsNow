@@ -1,4 +1,4 @@
-import { Flame, BarChart3, Sparkles, PenTool, BookOpen, HelpCircle, X, TrendingUp } from 'lucide-react';
+import { Flame, BarChart3, Sparkles, PenTool, BookOpen, HelpCircle, X, TrendingUp, Shield } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import type { ViewId } from '@/types';
 
@@ -9,6 +9,7 @@ const NAV: { id: ViewId; icon: typeof Flame; key: string }[] = [
   { id: 'creator', icon: PenTool, key: 'navCreator' },
   { id: 'blog', icon: BookOpen, key: 'navBlog' },
   { id: 'faq', icon: HelpCircle, key: 'navFaq' },
+  { id: 'admin', icon: Shield, key: 'navAdmin' },
 ];
 
 export function Sidebar({
@@ -43,7 +44,7 @@ export function Sidebar({
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold">TrendNow</span>
+            <span className="font-bold">Trends Now</span>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-base">
             <X className="w-5 h-5" />

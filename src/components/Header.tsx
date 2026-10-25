@@ -3,6 +3,7 @@ import { TrendingUp, Search, Moon, Sun, Globe, Menu, X } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { LANGUAGES } from '@/data/languages';
 import { Dropdown } from '@/components/Dropdown';
+import { AdSlot } from '@/components/AdSlot';
 
 export function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
   const { t, theme, toggleTheme, lang, setLang, filters, setFilters } = useApp();
@@ -33,11 +34,14 @@ export function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
         </button>
 
         <div className="flex items-center gap-2.5 flex-shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-neon">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
           <div className="hidden sm:block">
-            <div className="font-bold text-lg leading-none tracking-tight">TrendNow</div>
+            <div className="font-bold text-lg leading-none tracking-tight flex items-center gap-2">
+              Trends Now
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">Live</span>
+            </div>
             <div className="text-[10px] text-muted leading-none mt-0.5">{t('tagline')}</div>
           </div>
         </div>
@@ -99,6 +103,9 @@ export function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
             <Moon className="w-5 h-5" />
           )}
         </button>
+      </div>
+      <div className="hidden lg:flex justify-center px-4 pb-2">
+        <AdSlot placement="header" />
       </div>
     </header>
   );

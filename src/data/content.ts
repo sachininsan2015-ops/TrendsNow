@@ -3,9 +3,9 @@ import type { BlogPost } from '@/types';
 export const BLOG_POSTS: BlogPost[] = [
   {
     id: 'guide-creators',
-    title: 'How Creators Use TrendNow to Go Viral Before the Crowd',
+    title: 'How Creators Use Trends Now to Go Viral Before the Crowd',
     excerpt: 'A practical playbook for YouTubers, Reel makers, and Shorts creators to catch emerging trends in the first 6 hours.',
-    body: `TrendNow's predictive engine surfaces signals 12 to 24 hours before they hit peak mass volume. For creators, this head start is the difference between a video that rides the wave and one that arrives after the market saturates.
+    body: `Trends Now's predictive engine surfaces signals 12 to 24 hours before they hit peak mass volume. For creators, this head start is the difference between a video that rides the wave and one that arrives after the market saturates.
 
 **Step 1: Monitor Coming Trends daily.** Open the "Before It Blows Up" module each morning. Sort by confidence and time-to-peak. Trends with high confidence and 6+ hours to peak are your prime targets.
 
@@ -22,7 +22,7 @@ export const BLOG_POSTS: BlogPost[] = [
     id: 'guide-marketers',
     title: 'The Marketer\'s Guide to Hyper-Local Trend Targeting',
     excerpt: 'Use country, state, city, and pincode filters to find trends your competitors miss in specific geographies.',
-    body: `National-level trend data hides regional gold. TrendNow's location hierarchy lets you drill from Worldwide down to a specific pincode area.
+    body: `National-level trend data hides regional gold. Trends Now's location hierarchy lets you drill from Worldwide down to a specific pincode area.
 
 **Why hyper-local matters.** A trend exploding in Mumbai but flat in Delhi demands different creative, different ad spend, and different timing than a nationwide play.
 
@@ -35,9 +35,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     id: 'guide-researchers',
-    title: 'Building Research Pipelines with TrendNow Exports & Embeds',
+    title: 'Building Research Pipelines with Trends Now Exports & Embeds',
     excerpt: 'Automate your trend monitoring with CSV/JSON exports and embeddable widgets for internal dashboards.',
-    body: `TrendNow is built for analysts who need structured data, not just a feed.
+    body: `Trends Now is built for analysts who need structured data, not just a feed.
 
 **Exports.** Every trend table supports CSV and JSON export with the current filter set applied. Schedule exports daily to build a longitudinal dataset.
 
@@ -52,7 +52,7 @@ export const BLOG_POSTS: BlogPost[] = [
     id: 'guide-predictive',
     title: 'Understanding Predictive AI: How We Forecast Trends',
     excerpt: 'A look under the hood of the "Before It Blows Up" module and what confidence scores really mean.',
-    body: `TrendNow's predictive engine combines velocity acceleration, related-query clustering, and cross-category signal correlation to estimate whether a rising trend will sustain its trajectory.
+    body: `Trends Now's predictive engine combines velocity acceleration, related-query clustering, and cross-category signal correlation to estimate whether a rising trend will sustain its trajectory.
 
 **Confidence scores.** A confidence of 80%+ means multiple independent signals agree on upward continuation. Below 60%, the trend is more volatile and may plateau.
 
@@ -67,8 +67,8 @@ export const BLOG_POSTS: BlogPost[] = [
 
 export const FAQ_ITEMS = [
   {
-    q: 'How does TrendNow track trends in real time?',
-    a: 'TrendNow aggregates signals from public RSS feeds, news APIs, and search interest indices, then normalizes them into a unified trend feed. Data refreshes continuously so you always see the latest momentum shifts.',
+    q: 'How does Trends Now track trends in real time?',
+    a: 'Trends Now aggregates signals from public RSS feeds, news APIs, and search interest indices, then normalizes them into a unified trend feed. Data refreshes continuously so you always see the latest momentum shifts.',
   },
   {
     q: 'Can I search trends for my specific city or pincode?',
@@ -87,8 +87,8 @@ export const FAQ_ITEMS = [
     a: 'Every trend table supports CSV and JSON export. Each trend also has an Embed Widget option that generates an iframe snippet with a live preview for your dashboards.',
   },
   {
-    q: 'Is TrendNow free to use?',
-    a: 'TrendNow\'s core trending feed, filters, and Explore comparison are available to all users. Creator Studio and predictive analytics are part of the platform\'s full feature set.',
+    q: 'Is Trends Now free to use?',
+    a: 'Trends Now\'s core trending feed, filters, and Explore comparison are available to all users. Creator Studio and predictive analytics are part of the platform\'s full feature set.',
   },
   {
     q: 'How often is the data refreshed?',

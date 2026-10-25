@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { LangId, Filters, Toast, ViewId } from '@/types';
+import { trackVisitor } from '@/lib/api';
 import { DICTS } from '@/data/i18n';
 import { LANG_MAP } from '@/data/languages';
 
@@ -28,6 +29,8 @@ type AppState = {
   setView: (v: ViewId) => void;
   selectedTrendId: string | null;
   setSelectedTrendId: (id: string | null) => void;
+  selectedBlogId: string | null;
+  setSelectedBlogId: (id: string | null) => void;
 };
 
 const AppContext = createContext<AppState | null>(null);
@@ -53,6 +56,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [view, setView] = useState<ViewId>('trending');
   const [selectedTrendId, setSelectedTrendId] = useState<string | null>(null);
+  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
 
   const toggleTheme = () =>
     setTheme((p) => (p === 'dark' ? 'light' : 'dark'));
@@ -100,6 +104,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setView,
     selectedTrendId,
     setSelectedTrendId,
+    selectedBlogId,
+    setSelectedBlogId,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

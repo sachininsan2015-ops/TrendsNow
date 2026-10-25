@@ -43,7 +43,7 @@ function downloadFile(content: string, filename: string, type: string) {
 }
 
 export function buildEmbedCode(trend: Trend): string {
-  return `<iframe src="https://trendsnow.site/embed/${trend.id}" width="100%" height="420" frameborder="0" title="TrendNow: ${trend.title}"></iframe>`;
+  return `<iframe src="https://trendsnow.site/embed/${trend.id}" width="100%" height="420" frameborder="0" title="Trends Now: ${trend.title}"></iframe>`;
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {

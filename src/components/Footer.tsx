@@ -24,7 +24,7 @@ export function Footer() {
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-lg">TrendNow</div>
+                <div className="font-bold text-lg">Trends Now</div>
                 <div className="text-xs text-muted">{t('tagline')}</div>
               </div>
             </div>
@@ -75,7 +75,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-app flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
-          <span>© 2026 TrendNow — trendsnow.site. All rights reserved.</span>
+          <span>© 2026 Trends Now — trendsnow.site. All rights reserved.</span>
           <span>Built for creators, marketers & researchers worldwide.</span>
         </div>
       </div>

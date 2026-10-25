@@ -99,7 +99,7 @@ export function generateScript(
     sections.push(`[ORIGIN — 45-120s]\nEvery trend has an origin point. ${trend.topic} began as a niche signal and has now crossed into mainstream awareness. The spark came from "${trend.relatedQueries[0]?.query || 'early adopters'}" — a small but vocal audience that amplified the topic across platforms.`);
     sections.push(`[EXPANSION — 120-210s]\nThe expansion phase is where the real opportunity lives. Right now search interest is at ${trend.searchVolume.toLocaleString()} and rising. Related queries reveal the audience's intent:\n${trend.relatedQueries.slice(0, 5).map((r, i) => `  ${i + 1}. "${r.query}" — ${r.score}% interest${r.rising ? ' [RISING]' : ''}`).join('\n')}`);
     sections.push(`[ANALYSIS — 210-270s]\nThis trend maps to the ${trend.category} category, which historically sustains momentum for 48-72 hours after the initial spike. We're currently ${trend.startedHoursAgo} hours in, meaning there's still a substantial window.`);
-    sections.push(`[PREDICTION — 270-300s]\nBased on velocity acceleration, expect peak interest within the next 12-18 hours. Create and publish now to ride the upward curve. Follow TrendNow for the next predictive alert.`);
+    sections.push(`[PREDICTION — 270-300s]\nBased on velocity acceleration, expect peak interest within the next 12-18 hours. Create and publish now to ride the upward curve. Follow Trends Now for the next predictive alert.`);
   }
 
   const script = sections.join('\n\n');

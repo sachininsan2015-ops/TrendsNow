@@ -34,7 +34,7 @@ export function TrendCard({
 
   return (
     <>
-      <div className="group bg-card border border-app rounded-xl p-4 hover:border-primary/40 transition-all hover:shadow-lg">
+      <div className="group bg-card border border-app rounded-2xl p-5 hover:border-primary/40 transition-all hover:shadow-lg">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-base flex items-center justify-center text-sm font-bold text-muted">
             {rank}

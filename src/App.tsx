@@ -10,7 +10,11 @@ import { ExploreView } from '@/views/ExploreView';
 import { PredictiveView } from '@/views/PredictiveView';
 import { CreatorView } from '@/views/CreatorView';
 import { BlogView } from '@/views/BlogView';
+import { BlogReaderView } from '@/views/BlogReaderView';
+import { AdminView } from '@/views/AdminView';
 import { FaqView } from '@/views/FaqView';
+import { AdSlot, AffiliateWidget } from '@/components/AdSlot';
+import { trackVisitor } from '@/lib/api';
 import { SEED_TRENDS } from '@/data/trends';
 import type { ViewId } from '@/types';
 
@@ -20,7 +24,9 @@ const VIEW_TITLES: Record<ViewId, string> = {
   predictive: 'Coming Trends',
   creator: 'Creator Studio',
   blog: 'Guides',
+  'blog-reader': 'Article',
   faq: 'FAQ',
+  admin: 'Admin Dashboard',
 };
 
 function Layout() {
@@ -33,10 +39,15 @@ function Layout() {
   );
 
   useEffect(() => {
-    const viewTitle = VIEW_TITLES[view];
-    document.title = `${viewTitle} — TrendNow`;
+    const viewTitle = VIEW_TITLES[view] || 'Trends Now';
+    document.title = `${viewTitle} — Trends Now`;
     const og = document.querySelector('meta[property="og:title"]');
-    if (og) og.setAttribute('content', `${viewTitle} — TrendNow`);
+    if (og) og.setAttribute('content', `${viewTitle} — Trends Now`);
+  }, [view]);
+
+  // Visitor analytics tracking
+  useEffect(() => {
+    void trackVisitor(view);
   }, [view]);
 
   // Programmatic SEO: inject per-view JSON-LD
@@ -50,7 +61,7 @@ function Layout() {
     const schema: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'TrendNow',
+      name: 'Trends Now',
       url: `https://trendsnow.site/${view}`,
     };
     if (view === 'faq') {
@@ -77,9 +88,18 @@ function Layout() {
             {view === 'predictive' && <PredictiveView />}
             {view === 'creator' && <CreatorView />}
             {view === 'blog' && <BlogView />}
+            {view === 'blog-reader' && <BlogReaderView />}
             {view === 'faq' && <FaqView />}
+            {view === 'admin' && <AdminView />}
           </div>
         </main>
+        {view !== 'admin' && (
+          <aside className="hidden xl:block w-72 flex-shrink-0 p-4 lg:p-6 space-y-4">
+            <AdSlot placement="sidebar" />
+            <AffiliateWidget />
+            <AdSlot placement="sidebar" />
+          </aside>
+        )}
       </div>
       <Footer />
       <TrendDetailPanel

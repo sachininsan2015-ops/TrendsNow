@@ -3,7 +3,7 @@ import type { LangId } from '@/types';
 export type Dict = Record<string, string>;
 
 const en: Dict = {
-  appName: 'TrendNow',
+  appName: 'Trends Now',
   tagline: 'Global Intelligence & Real-Time Trend Tracking',
   navTrending: 'Trending Now',
   navExplore: 'Explore',
@@ -11,6 +11,7 @@ const en: Dict = {
   navCreator: 'Creator Studio',
   navBlog: 'Guides',
   navFaq: 'FAQ',
+  navAdmin: 'Admin',
   searchPlaceholder: 'Search trends, topics, queries...',
   filters: 'Filters',
   timeframe: 'Time Frame',
@@ -83,7 +84,7 @@ const en: Dict = {
   hashtags: 'Suggested Hashtags',
   copyScript: 'Copy Script',
   blogTitle: 'Guides & Tutorials',
-  blogDesc: 'Learn how creators, marketers, and researchers maximize results with TrendNow.',
+  blogDesc: 'Learn how creators, marketers, and researchers maximize results with Trends Now.',
   readMore: 'Read More',
   faqTitle: 'Frequently Asked Questions',
   faqDesc: 'Everything you need to know about live trends, hyper-local searches, and predictive AI.',

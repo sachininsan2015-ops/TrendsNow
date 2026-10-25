@@ -1,0 +1,15 @@
+[functions.trends-api]
+verify_jwt = false
+entrypoint = "./functions/trends-api/index.ts"
+
+[functions.blog-generator]
+verify_jwt = false
+entrypoint = "./functions/blog-generator/index.ts"
+
+[functions.admin-api]
+verify_jwt = false
+entrypoint = "./functions/admin-api/index.ts"
+
+[functions.visitor-track]
+verify_jwt = false
+entrypoint = "./functions/visitor-track/index.ts"

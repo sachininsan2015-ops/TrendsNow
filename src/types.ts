@@ -66,7 +66,9 @@ export type ViewId =
   | 'predictive'
   | 'creator'
   | 'blog'
-  | 'faq';
+  | 'blog-reader'
+  | 'faq'
+  | 'admin';
 
 export type Toast = {
   id: string;
@@ -104,6 +106,27 @@ export type BlogPost = {
   excerpt: string;
   body: string;
   category: string;
+  tags?: string[];
   readTime: number;
   date: string;
+  published?: boolean;
+  auto_generated?: boolean;
+};
+
+export type AdminSettings = {
+  ads_enabled: boolean;
+  adsense_client: string | null;
+  adsterra_key: string | null;
+  affiliate_enabled: boolean;
+};
+
+export type VisitorAnalytics = {
+  totalVisits: number;
+  uniqueVisitors: number;
+  byPage: Record<string, number>;
+  byCountry: Record<string, number>;
+  byDevice: Record<string, number>;
+  byHour: Record<string, number>;
+  blogs: { id: string; title: string; published: boolean; auto_generated: boolean; created_at: string }[];
+  settings: AdminSettings & { last_blog_generation: string | null };
 };
