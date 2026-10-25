@@ -1,1 +1,1 @@
-TrendNow App
+TrendNow App - Live Vercel Sync
