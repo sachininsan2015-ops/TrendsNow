@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, Compass, Flame, Sparkles, HelpCircle, 
   Search, RefreshCw, Filter, ArrowUpRight, FileText, Clock, 
-  Shield, Globe, MapPin, Video, Plus, CheckCircle2, Layers, Database, Settings
+  Shield, Globe, MapPin, Video, Plus, CheckCircle2, Layers, Database, Settings, Lock, LogIn, LogOut, User
 } from 'lucide-react';
 
 export default function App() {
@@ -16,6 +16,11 @@ export default function App() {
   const [selectedTrendForScript, setSelectedTrendForScript] = useState('GPT-5 release date & architecture leaks');
   const [generatedScript, setGeneratedScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Secure Admin Authentication State (Only visible when logged in with your specific Admin Email)
+  const [userEmail, setUserEmail] = useState('');
+  const [loginInput, setLoginInput] = useState('');
+  const ADMIN_EMAIL = 'sachininsan2015@gmail.com'; // Aapki secured admin email
 
   // Admin automation state
   const [autoBlogStatus, setAutoBlogStatus] = useState(true);
@@ -108,6 +113,25 @@ export default function App() {
     alert('Blog published successfully and added to the automated SEO pipeline!');
   };
 
+  const handleEmailLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginInput.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      setUserEmail(ADMIN_EMAIL);
+      alert('Welcome back, Admin! Admin panel is now unlocked.');
+    } else {
+      setUserEmail(loginInput.trim());
+      alert('Logged in as standard user. (Admin privileges restricted).');
+    }
+    setLoginInput('');
+  };
+
+  const handleLogout = () => {
+    setUserEmail('');
+    setActiveTab('trending');
+  };
+
+  const isUserAdmin = userEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
@@ -191,13 +215,16 @@ export default function App() {
               Creator Studio / Hub
             </button>
 
-            <button 
-              onClick={() => setActiveTab('admin')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'admin' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
-            >
-              <Settings className="w-4 h-4" />
-              World-Class Admin Panel
-            </button>
+            {/* Admin Portal Button: Appears ONLY when logged in with sachininsan2015@gmail.com */}
+            {isUserAdmin && (
+              <button 
+                onClick={() => setActiveTab('admin')}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'admin' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
+              >
+                <Settings className="w-4 h-4" />
+                Admin Dashboard
+              </button>
+            )}
 
             <button 
               onClick={() => setActiveTab('faq')}
@@ -208,12 +235,38 @@ export default function App() {
             </button>
           </nav>
 
-          <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-2">
-            <div className="flex items-center gap-2 text-cyan-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-              Automation Active (2 blogs/day)
-            </div>
-            <p>SEO Pipeline & 30 Starter Articles Live.</p>
+          {/* User Auth Section at Bottom of Sidebar */}
+          <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-3">
+            {userEmail ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-cyan-400 font-medium truncate">
+                  <User className="w-3.5 h-3.5" />
+                  <span className="truncate">{userEmail}</span>
+                </div>
+                {isUserAdmin && <p className="text-emerald-400 font-semibold">⚡ Admin Mode Active</p>}
+                <button 
+                  onClick={handleLogout}
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg font-medium transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleEmailLogin} className="space-y-2">
+                <p className="font-medium text-slate-300">Creator / Admin Login</p>
+                <input 
+                  type="email" 
+                  value={loginInput}
+                  onChange={(e) => setLoginInput(e.target.value)}
+                  placeholder="Enter your email..."
+                  required
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                />
+                <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold py-1.5 rounded-lg transition-colors">
+                  Login
+                </button>
+              </form>
+            )}
           </div>
         </aside>
 
@@ -484,11 +537,11 @@ export default function App() {
             </div>
           )}
 
-          {activeTab === 'admin' && (
+          {activeTab === 'admin' && isUserAdmin && (
             <div className="space-y-6 max-w-4xl">
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">World-Class Admin Panel & SEO Automation</h2>
-                <p className="text-sm text-slate-400">Manage automated daily blog generation, XML sitemaps, OpenGraph metadata, and crawler indexing.</p>
+                <h2 className="text-2xl font-bold text-white mb-1">World-Class Admin Monitoring Panel</h2>
+                <p className="text-sm text-slate-400">Logged in as Admin ({ADMIN_EMAIL}). Manage automated publishing and traffic intelligence.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
