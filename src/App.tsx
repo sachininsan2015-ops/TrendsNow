@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, Compass, Flame, Sparkles, HelpCircle, 
   Search, RefreshCw, Filter, ArrowUpRight, FileText, Clock, 
-  Globe, MapPin, Video, Settings, Lock, User, DollarSign, PlayCircle, Layers, CheckCircle2, Megaphone, Share2, Copy, Bell, Send
+  Globe, MapPin, Video, Settings, Lock, User, DollarSign, PlayCircle, Layers, CheckCircle2, Megaphone, Share2, Copy, Bell, Send, BarChart3, CreditCard, ShieldCheck
 } from 'lucide-react';
 
 export default function App() {
@@ -41,12 +41,38 @@ export default function App() {
   const [newBlogTitle, setNewBlogTitle] = useState('');
   const [newBlogCategory, setNewBlogCategory] = useState('Strategy');
 
+  // All 30 Pre-loaded SEO-Optimized Blog Posts
   const [blogPosts, setBlogPosts] = useState([
     { id: 1, title: 'How Real-Time Search Intelligence is Transforming Digital Marketing in 2026', excerpt: 'Discover how predictive search trends and live data pipelines help creators stay ahead of algorithmic shifts.', date: 'October 25, 2026', readTime: '4 min read', category: 'Strategy' },
     { id: 2, title: 'The Evolution of AI-Generated Content & Global Query Optimization', excerpt: 'An in-depth look at how multi-language query mapping scales brand visibility across international markets.', date: 'October 24, 2026', readTime: '6 min read', category: 'Technology' },
     { id: 3, title: 'Maximizing Engagement Through Creator Studio Analytics', excerpt: 'Best practices for leveraging real-time tracking dashboards to monetize digital assets effectively.', date: 'October 22, 2026', readTime: '5 min read', category: 'Growth' },
     { id: 4, title: 'Hyper-Local SEO Strategies for Regional Businesses in Haryana & Tricity', excerpt: 'Mastering proximity-based search signals to capture local customer intent instantly.', date: 'October 21, 2026', readTime: '5 min read', category: 'Local SEO' },
-    { id: 5, title: 'Predictive Analytics in 2026: Forecasting Viral Content Before Peak', excerpt: 'How neural search engines detect momentum shifts 48 hours prior to mainstream explosion.', date: 'October 20, 2026', readTime: '7 min read', category: 'AI & Data' }
+    { id: 5, title: 'Predictive Analytics in 2026: Forecasting Viral Content Before Peak', excerpt: 'How neural search engines detect momentum shifts 48 hours prior to mainstream explosion.', date: 'October 20, 2026', readTime: '7 min read', category: 'AI & Data' },
+    { id: 6, title: 'Mastering Short-Form Video Hooks for YouTube Shorts and Instagram Reels', excerpt: 'The psychological triggers required to retain audience attention in the first 3 seconds.', date: 'October 19, 2026', readTime: '4 min read', category: 'Content' },
+    { id: 7, title: 'Programmatic SEO at Scale: Building Automated Authority Sites', excerpt: 'Architecture guidelines for generating thousands of targeted landing pages securely.', date: 'October 18, 2026', readTime: '8 min read', category: 'SEO' },
+    { id: 8, title: 'Monetizing Independent Creator Channels With Web3 Micro-Tokens', excerpt: 'Exploring decentralized reward mechanisms for video creators on embedded platforms.', date: 'October 17, 2026', readTime: '6 min read', category: 'Monetization' },
+    { id: 9, title: 'Optimizing Core Web Vitals for Next-Generation React Single Page Apps', excerpt: 'Performance tuning techniques to achieve 100/100 Lighthouse scores effortlessly.', date: 'October 16, 2026', readTime: '5 min read', category: 'Development' },
+    { id: 10, title: 'Semantic Search Algorithms and Entity-Based Optimization in 2026', excerpt: 'Moving beyond exact-match keywords to context-driven semantic topical authority.', date: 'October 15, 2026', readTime: '6 min read', category: 'SEO' },
+    { id: 11, title: 'Scaling Automated Social Media Syndication via Make.com and APIs', excerpt: 'Connecting live data feeds to multi-platform publishing pipelines without manual friction.', date: 'October 14, 2026', readTime: '4 min read', category: 'Automation' },
+    { id: 12, title: 'The Psychology of Viral Click-Through Rates in Search Snippets', excerpt: 'Crafting meta descriptions and titles that outperform algorithmic competitors.', date: 'October 13, 2026', readTime: '5 min read', category: 'Copywriting' },
+    { id: 13, title: 'Enterprise AI Search Infrastructure: What CTOs Need to Know', excerpt: 'Evaluating distributed vector databases and real-time indexing models for high throughput.', date: 'October 12, 2026', readTime: '9 min read', category: 'Enterprise' },
+    { id: 14, title: 'Cross-Border E-Commerce SEO: Overcoming Localization Barriers', excerpt: 'Structuring multilingual metadata to capture international buyer intent seamlessly.', date: 'October 11, 2026', readTime: '6 min read', category: 'E-Commerce' },
+    { id: 15, title: 'Leveraging ElevenLabs and AI Voice Synthesis in Production Workflows', excerpt: 'Best practices for generating lifelike voiceovers for cinematic storytelling and reels.', date: 'October 10, 2026', readTime: '5 min read', category: 'Media' },
+    { id: 16, title: 'Real Estate Digital Marketing: Turning Search Velocity Into Property Leads', excerpt: 'Connecting buyer query spikes directly with CRM lead generation pipelines.', date: 'October 9, 2026', readTime: '6 min read', category: 'Real Estate' },
+    { id: 17, title: 'Deep Dive Into GPT-5 Architecture Rumors and Search Implications', excerpt: 'Analyzing how upcoming LLM upgrades will reshape automated content generation.', date: 'October 8, 2026', readTime: '7 min read', category: 'AI & Tech' },
+    { id: 18, title: 'Automated XML Sitemap Generation and Dynamic Indexing Protocols', excerpt: 'Ensuring Google and Bing bots crawl fresh content within minutes of publishing.', date: 'October 7, 2026', readTime: '4 min read', category: 'SEO' },
+    { id: 19, title: 'Building High-Converting Landing Pages With AI Prototyping Tools', excerpt: 'Rapid iteration workflows using modern design systems and clean component structures.', date: 'October 6, 2026', readTime: '5 min read', category: 'Design' },
+    { id: 20, title: 'The Future of Programmatic Advertising in Real-Time Trend Networks', excerpt: 'Maximizing CPM yields through high-intent programmatic keyword placement.', date: 'October 5, 2026', readTime: '6 min read', category: 'Business' },
+    { id: 21, title: 'Voice Search Optimization: Capturing Conversational Queries in 2026', excerpt: 'Adapting content strategies for natural language AI assistants and smart speakers.', date: 'October 4, 2026', readTime: '5 min read', category: 'SEO' },
+    { id: 22, title: 'Data Privacy and GDPR Compliance in Automated Real-Time Analytics', excerpt: 'Balancing high-performance visitor tracking with strict regulatory compliance standards.', date: 'October 3, 2026', readTime: '6 min read', category: 'Legal & Tech' },
+    { id: 23, title: 'Maximizing YouTube Creator Revenue Through Trend-Driven Content Briefs', excerpt: 'How data-backed video concepts consistently achieve higher retention and CTR.', date: 'October 2, 2026', readTime: '5 min read', category: 'Growth' },
+    { id: 24, title: 'Advanced Tailwind CSS Design Patterns for Dark-Mode Dashboards', excerpt: 'Creating immersive, high-contrast user interfaces for complex data visualization.', date: 'October 1, 2026', readTime: '5 min read', category: 'Design' },
+    { id: 25, title: 'The Role of Backlinks in the Era of Generative AI Search Engines', excerpt: 'Evaluating how authority links persist when search engines synthesize direct answers.', date: 'September 28, 2026', readTime: '7 min read', category: 'SEO' },
+    { id: 26, title: 'Scaling Content Operations: How to Publish 2 Automated Blogs Daily', excerpt: 'Workflows and cron automation setups for consistent daily publishing without burnout.', date: 'September 25, 2026', readTime: '6 min read', category: 'Automation' },
+    { id: 27, title: 'Measuring Content ROI: Connecting Organic Traffic to Revenue Dashboards', excerpt: 'Attribution models that prove the business impact of long-tail SEO articles.', date: 'September 22, 2026', readTime: '6 min read', category: 'Analytics' },
+    { id: 28, title: 'Optimizing Video Metadata for Algorithmic Discovery Across Platforms', excerpt: 'Tagging, descriptions, and transcript indexing best practices for maximum reach.', date: 'September 19, 2026', readTime: '5 min read', category: 'Video' },
+    { id: 29, title: 'Securing React Applications Against Client-Side Vulnerabilities', excerpt: 'Essential security headers, input sanitization, and dependency auditing protocols.', date: 'September 16, 2026', readTime: '6 min read', category: 'Security' },
+    { id: 30, title: 'The Ultimate Checklist for Launching a Real-Time Intelligence Platform', excerpt: 'From domain configuration to Vercel continuous deployment and automated SEO.', date: 'September 15, 2026', readTime: '8 min read', category: 'Strategy' }
   ]);
 
   const masterTrends = [
@@ -55,16 +81,22 @@ export default function App() {
     { id: 3, title: 'M4 MacBook Pro performance & thermals review', category: 'TECH & AI', volume: '1.5M search volume', growth: '+40%', time: '1d ago', source: 'Hardware Pulse', country: 'India', region: 'Haryana', city: 'Sirsa', rankingKeywords: ['M4 MacBook Sirsa', 'Apple store Begu Road', 'laptop prices Haryana'] },
     { id: 4, title: 'Helldivers 3 official announcement rumors', category: 'GAMING', volume: '1.9M search volume', growth: '+297%', time: '11h ago', source: 'Gaming Syndicate', country: 'Worldwide', region: 'Global', city: 'Online', rankingKeywords: ['Helldivers 3 leak', 'Arrowhead studios', 'PS5 Pro gaming'] },
     { id: 5, title: 'Valorant mobile beta rollout expansion', category: 'GAMING', volume: '1.1M search volume', growth: '+12%', time: '16h ago', source: 'Esports Radar', country: 'India', region: 'Punjab', city: 'Chandigarh', rankingKeywords: ['Valorant mobile India', 'beta testing Tricity', 'esports tournaments'] },
-    { id: 6, title: 'Temu global IPO market speculation', category: 'BUSINESS', volume: '2.4M search volume', growth: '+21%', time: '15h ago', source: 'Fintech Daily', country: 'Worldwide', region: 'Global', city: 'Online', rankingKeywords: ['Temu stock IPO', 'e-commerce valuation', 'supply chain trends'] }
+    { id: 6, title: 'Temu global IPO market speculation', category: 'BUSINESS', volume: '2.4M search volume', growth: '+21%', time: '15h ago', source: 'Fintech Daily', country: 'Worldwide', region: 'Global', city: 'Online', rankingKeywords: ['Temu stock IPO', 'e-commerce valuation', 'supply chain trends'] },
+    { id: 7, title: 'Solana $CREATOR token staking mechanics', category: 'CRYPTO & WEB3', volume: '980K search volume', growth: '+185%', time: '2h ago', source: 'BlockWire Global', country: 'Worldwide', region: 'Global', city: 'Online', rankingKeywords: ['Creator token Solana', 'Web3 video monetization', 'crypto staking'] },
+    { id: 8, title: 'AI Video Generation Tools & Sora 2 API release', category: 'TECH & AI', volume: '4.2M search volume', growth: '+410%', time: '1h ago', source: 'Neural Feed', country: 'Worldwide', region: 'Global', city: 'Online', rankingKeywords: ['Sora 2 API', 'cinematic AI generation', 'text to video tools'] },
+    { id: 9, title: 'PMEGP Subsidy Loan Scheme for Handicraft MSMEs', category: 'BUSINESS', volume: '450K search volume', growth: '+95%', time: '4h ago', source: 'Govt Portal Wire', country: 'India', region: 'Haryana', city: 'Sirsa', rankingKeywords: ['PMEGP loan Sirsa', 'MSME subsidy Haryana', 'handicraft funding'] },
+    { id: 10, title: 'Ashwagandha & Medicinal Herb Farming Profitability', category: 'AGRICULTURE', volume: '320K search volume', growth: '+64%', time: '6h ago', source: 'AgriTech India', country: 'India', region: 'Haryana', city: 'Dhingtania', rankingKeywords: ['Ashwagandha farming', 'medicinal crop profit', 'organic farming Sirsa'] }
   ];
 
   const upcomingTrends = [
-    { id: 101, title: 'Quantum computing chip breakthrough in commercial batteries', category: 'TECH & AI', expectedVelocity: 'Very High (+450%)', launchWindow: 'Next 48 hours', source: 'Predictive Neural Engine' }
+    { id: 101, title: 'Quantum computing chip breakthrough in commercial batteries', category: 'TECH & AI', expectedVelocity: 'Very High (+450%)', launchWindow: 'Next 48 hours', source: 'Predictive Neural Engine' },
+    { id: 102, title: 'Next-gen solar skin efficiency milestone', category: 'ENERGY & TECH', expectedVelocity: 'High (+280%)', launchWindow: 'This Week', source: 'Predictive Neural Engine' }
   ];
 
   const filteredTrends = masterTrends.filter(item => {
     const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = !query || 
+    if (!query) return true;
+    const matchesSearch = 
       item.title.toLowerCase().includes(query) ||
       item.category.toLowerCase().includes(query) ||
       item.city.toLowerCase().includes(query) ||
@@ -161,15 +193,17 @@ export default function App() {
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Type any city (Sirsa), state (Haryana), country, or keyword..." 
+            placeholder="Search any city (Sirsa, London), country, or keyword..." 
             className="w-full bg-slate-900 border border-cyan-500/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
           />
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className="hidden md:flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-xs text-emerald-400 font-semibold">
-            <DollarSign className="w-3.5 h-3.5" /> AdSense Active
-          </div>
+          {isUserAdmin && (
+            <div className="hidden md:flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-xs text-emerald-400 font-semibold">
+              <DollarSign className="w-3.5 h-3.5" /> AdSense Active (Admin)
+            </div>
+          )}
           <button 
             onClick={handleRefresh}
             className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition-all"
@@ -188,7 +222,7 @@ export default function App() {
               <Flame className="w-4 h-4" /> Trending Now ({filteredTrends.length})
             </button>
             <button onClick={() => setActiveTab('upcoming')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'upcoming' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
-              <TrendingUp className="w-4 h-4" /> Upcoming Trends
+              <TrendingUp className="w-4 h-4" /> Upcoming Trends ({upcomingTrends.length})
             </button>
             <button onClick={() => setActiveTab('explore')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'explore' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <Compass className="w-4 h-4" /> Explore (City to Global)
@@ -235,6 +269,7 @@ export default function App() {
         </aside>
 
         <main className="flex-1 p-8 overflow-y-auto space-y-8">
+          {/* SPONSORED AD BANNER (High CPM Dollar Revenue) */}
           <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900 border border-cyan-500/30 rounded-2xl p-4 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-4">
               <div className="bg-cyan-500/20 p-2.5 rounded-xl text-cyan-400 font-bold text-xs uppercase border border-cyan-500/30">Sponsored Ad</div>
@@ -243,38 +278,101 @@ export default function App() {
                 <p className="text-xs text-slate-400">Promote your properties across Sirsa and Tricity with high-converting buyer leads.</p>
               </div>
             </div>
-            <a href="https://wa.me/" target="_blank" rel="noreferrer" className="bg-cyan-500 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs">Learn More</a>
+            <a href="https://wa.me/" target="_blank" rel="noreferrer" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs transition-all">Learn More</a>
           </div>
 
           {activeTab === 'trending' && (
-            <div className="grid grid-cols-3 gap-6">
-              {filteredTrends.map((item) => (
-                <div key={item.id} className="bg-slate-900/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition-all flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">{item.category}</span>
-                      <span className="text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">{item.growth}</span>
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-6">
+                {filteredTrends.map((item) => (
+                  <div key={item.id} className="bg-slate-900/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition-all flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">{item.category}</span>
+                        <span className="text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">{item.growth}</span>
+                      </div>
+                      <h3 className="text-base font-semibold text-slate-100 mb-2">{item.title}</h3>
+                      <p className="text-xs text-slate-400 mb-2">{item.volume} • {item.time}</p>
+                      <div className="flex items-center gap-2 text-xs text-cyan-300/80 mb-3">
+                        <MapPin className="w-3 h-3 text-cyan-400" /> Location: {item.city}, {item.region} ({item.country})
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {item.rankingKeywords.map((kw, idx) => (
+                          <span key={idx} className="text-[10px] bg-slate-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/30">#{kw}</span>
+                        ))}
+                      </div>
                     </div>
-                    <h3 className="text-base font-semibold text-slate-100 mb-2">{item.title}</h3>
-                    <p className="text-xs text-slate-400 mb-2">{item.volume} • {item.time}</p>
-                    <div className="flex items-center gap-2 text-xs text-cyan-300/80 mb-3">
-                      <MapPin className="w-3 h-3 text-cyan-400" /> Location: {item.city}, {item.region} ({item.country})
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {item.rankingKeywords.map((kw, idx) => (
-                        <span key={idx} className="text-[10px] bg-slate-950 text-slate-300 px-2 py-0.5 rounded border border-slate-800">#{kw}</span>
-                      ))}
+                    <div className="space-y-3 pt-4 border-t border-slate-800/80">
+                      <button onClick={() => { setSelectedTrendForScript(item.title); setActiveTab('studio'); }} className="w-full text-cyan-400 text-xs font-semibold text-right">Create Script &rarr;</button>
+                      <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40">
+                        <button onClick={() => handleCopyText('https://trendsnow.site/?trend=' + encodeURIComponent(item.title), 'Link')} className="flex-1 bg-slate-950 text-slate-300 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 border border-slate-800"><Copy className="w-3 h-3" /> Copy Link</button>
+                        <button onClick={() => handleWhatsAppShare(item.title)} className="flex-1 bg-emerald-500/10 text-emerald-400 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 border border-emerald-500/20"><Share2 className="w-3 h-3" /> WhatsApp</button>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-3 pt-4 border-t border-slate-800/80">
-                    <button onClick={() => { setSelectedTrendForScript(item.title); setActiveTab('studio'); }} className="w-full text-cyan-400 text-xs font-semibold text-right">Create Script &rarr;</button>
-                    <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40">
-                      <button onClick={() => handleCopyText('https://trendsnow.site/?trend=' + encodeURIComponent(item.title), 'Link')} className="flex-1 bg-slate-950 text-slate-300 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 border border-slate-800"><Copy className="w-3 h-3" /> Copy Link</button>
-                      <button onClick={() => handleWhatsAppShare(item.title)} className="flex-1 bg-emerald-500/10 text-emerald-400 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 border border-emerald-500/20"><Share2 className="w-3 h-3" /> WhatsApp</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'upcoming' && (
+            <div className="space-y-6 max-w-4xl">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Upcoming Trends & Predictive Signals</h2>
+                <p className="text-sm text-slate-400">AI-powered predictive forecasting before queries hit peak mainstream search volume.</p>
+              </div>
+              <div className="space-y-4">
+                {upcomingTrends.map((item) => (
+                  <div key={item.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">{item.category}</span>
+                      <h3 className="text-lg font-bold text-white mt-2 mb-1">{item.title}</h3>
+                      <p className="text-xs text-slate-400">Launch Window: {item.launchWindow} • Expected: {item.expectedVelocity}</p>
                     </div>
+                    <button className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-semibold px-4 py-2 rounded-xl text-xs">Track Velocity</button>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'explore' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Explore Micro-to-Global Intelligence</h2>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Globe className="w-5 h-5 text-cyan-400" /> Global Macro Trends</h3>
+                  <p className="text-xs text-slate-400 mb-4">Real-time aggregate data across North America, Europe, and Asia-Pacific markets.</p>
                 </div>
-              ))}
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><MapPin className="w-5 h-5 text-cyan-400" /> Hyper-Local Intelligence (Sirsa & Tricity)</h3>
+                  <p className="text-xs text-slate-400 mb-4">Regional search queries, real estate developments, and local service demands.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'blogs' && (
+            <div className="space-y-6 max-w-4xl">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Blogs & Insights ({blogPosts.length} Articles Live)</h2>
+                <p className="text-sm text-slate-400">Fully SEO-optimized articles with automated daily publishing (2 blogs/day).</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {blogPosts.map((post) => (
+                  <div key={post.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                      <span className="text-xs font-semibold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">{post.category}</span>
+                      <h3 className="text-base font-bold text-white mt-2 mb-2">{post.title}</h3>
+                      <p className="text-xs text-slate-300 mb-4 line-clamp-2">{post.excerpt}</p>
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
+                      <span className="text-slate-500">{post.date} ({post.readTime})</span>
+                      <button onClick={() => handleWhatsAppShare(post.title)} className="text-emerald-400 font-semibold flex items-center gap-1">Share <ArrowUpRight className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
