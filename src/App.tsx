@@ -1,40 +1,60 @@
-import React, { useState } from 'react';
-import { Search, TrendingUp, Flame, Clock, Unlock, Database, Sparkles, X, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, TrendingUp, Flame, Clock, Unlock, Database, Sparkles, X, ArrowRight, Loader2 } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 export function App() {
+  const [trends, setTrends] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
   const [selectedBlog, setSelectedBlog] = useState(null);
 
-  const trends = [
-    { id: 1, title: 'AI Agents Revolution 2026', category: 'Technology', search_volume: '1.2M searches', growth: '+245%', city: 'Delhi', country: 'India', ranking_keywords: ['ai', 'future', 'tech'] },
-    { id: 2, title: 'Global Stock Market Rally', category: 'Finance', search_volume: '850K searches', growth: '+120%', city: 'Mumbai', country: 'India', ranking_keywords: ['stocks', 'economy', 'finance'] },
-    { id: 3, title: 'Next-Gen VR Gaming Launch', category: 'Entertainment', search_volume: '2.1M searches', growth: '+310%', city: 'Bengaluru', country: 'India', ranking_keywords: ['gaming', 'vr', 'tech'] }
-  ];
+  useEffect(() => {
+    async function fetchLiveSupabaseData() {
+      setLoading(true);
+      try {
+        const { data: liveTrends, error: trendErr } = await supabase
+          .from('live_trends')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-  const blogs = [
-    { 
-      id: 1, 
-      title: 'The Rise of Autonomous AI Agents in 2026', 
-      slug: 'rise-of-autonomous-ai-agents-2026', 
-      excerpt: 'Discover how autonomous AI agents are transforming global search intelligence and automated publishing ecosystems.', 
-      content: 'Autonomous AI agents are completely reshaping how digital trends are captured, analyzed, and published worldwide without human intervention. In 2026, real-time search intelligence engines leverage advanced neural architectures to aggregate viral sentiment, predict breakout search queries, and autonomously generate deep editorial reports within seconds.',
-      category: 'Technology', 
-      read_time: '4 min read'
+        const { data: liveBlogs, error: blogErr } = await supabase
+          .from('automated_blogs')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (trendErr) console.error('Supabase Trends Error:', trendErr);
+        if (blogErr) console.error('Supabase Blogs Error:', blogErr);
+
+        if (liveTrends) setTrends(liveTrends);
+        if (liveBlogs) setBlogs(liveBlogs);
+      } catch (err) {
+        console.error('Fetch exception:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
 
-  const filteredTrends = trends.filter(t => {
-    const matchSearch = !searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.ranking_keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchCat = selectedCategory === 'All' || t.category.toLowerCase() === selectedCategory.toLowerCase();
-    return matchSearch && matchCat;
+    fetchLiveSupabaseData();
+  }, []);
+
+  const filteredTrends = trends.filter(trend => {
+    const matchesSearch = !searchQuery || 
+      (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
+    
+    const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category.toLowerCase() === selectedCategory.toLowerCase());
+    return matchesSearch && matchesCategory;
   });
 
-  const filteredBlogs = blogs.filter(b => {
-    const matchSearch = !searchQuery || b.title.toLowerCase().includes(searchQuery.toLowerCase()) || b.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCat = selectedCategory === 'All' || b.category.toLowerCase() === selectedCategory.toLowerCase();
-    return matchSearch && matchCat;
+  const filteredBlogs = blogs.filter(blog => {
+    const matchesSearch = !searchQuery || 
+      (blog.title && blog.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (blog.excerpt && blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = selectedCategory === 'All' || (blog.category && blog.category.toLowerCase() === selectedCategory.toLowerCase());
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -60,7 +80,7 @@ export function App() {
             </span>
             <div className="hidden sm:flex items-center space-x-2 text-xs bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-500/20">
               <Database className="w-4 h-4 text-indigo-400 animate-spin" />
-              <span>Google Trends Synced</span>
+              <span>Supabase DB Live</span>
             </div>
           </div>
         </div>
@@ -73,7 +93,7 @@ export function App() {
               <Search className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search viral trends, keywords (#tags)..."
+                placeholder="Search live trends, keywords (#tags)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 shadow-inner transition-all"
@@ -122,24 +142,29 @@ export function App() {
             </h3>
             <span className="text-xs text-slate-400 flex items-center space-x-1.5 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
               <Clock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Real-time Sync Active</span>
+              <span>Supabase Connected</span>
             </span>
           </div>
 
-          {filteredTrends.length === 0 ? (
+          {loading ? (
+            <div className="py-20 text-center flex flex-col items-center justify-center space-y-3 text-slate-400">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+              <p className="text-sm font-medium">Fetching live data from Supabase...</p>
+            </div>
+          ) : filteredTrends.length === 0 ? (
             <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-              <p className="text-slate-300 text-sm font-semibold">No trends found matching your filter.</p>
+              <p className="text-slate-300 text-sm font-semibold">No live trends found in database. Add rows to `live_trends` table.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredTrends.map((trend) => (
-                <div key={trend.id} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
+                <div key={trend.id || trend.title} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold rounded-lg">
-                      {trend.category}
+                      {trend.category || 'General'}
                     </span>
                     <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                      {trend.growth}
+                      {trend.growth || '+100%'}
                     </span>
                   </div>
 
@@ -148,17 +173,19 @@ export function App() {
                       {trend.title}
                     </h4>
                     <p className="text-xs text-slate-400 mt-1.5">
-                      Volume: <strong className="text-slate-200">{trend.search_volume}</strong> • {trend.city}, {trend.country}
+                      Volume: <strong className="text-slate-200">{trend.search_volume || 'High'}</strong> • {trend.city || 'Global'}, {trend.country || 'World'}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
-                    {trend.ranking_keywords.map((kw, i) => (
-                      <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
-                        #{kw}
-                      </span>
-                    ))}
-                  </div>
+                  {trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
+                      {trend.ranking_keywords.map((kw, i) => (
+                        <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
+                          #{kw}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -173,23 +200,25 @@ export function App() {
             </h3>
           </div>
 
-          {filteredBlogs.length === 0 ? (
+          {loading ? (
+            <div className="py-12 text-center text-slate-400 text-sm">Loading articles...</div>
+          ) : filteredBlogs.length === 0 ? (
             <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-              <p className="text-slate-400 text-sm">No editorial reports found.</p>
+              <p className="text-slate-400 text-sm">No editorial reports in database. Add rows to `automated_blogs` table.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredBlogs.map((blog) => (
                 <article 
-                  key={blog.id} 
+                  key={blog.id || blog.slug} 
                   onClick={() => setSelectedBlog(blog)}
                   className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
                 >
                   <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-                    <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category}</span>
+                    <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category || 'Technology'}</span>
                     <span className="flex items-center space-x-1 text-slate-400">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{blog.read_time}</span>
+                      <span>{blog.read_time || '5 min read'}</span>
                     </span>
                   </div>
                   <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
@@ -220,11 +249,11 @@ export function App() {
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-xs">
                 <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold rounded-lg">
-                  {selectedBlog.category}
+                  {selectedBlog.category || 'Technology'}
                 </span>
                 <span className="text-slate-400 flex items-center space-x-1">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{selectedBlog.read_time}</span>
+                  <span>{selectedBlog.read_time || '4 min read'}</span>
                 </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
@@ -237,7 +266,7 @@ export function App() {
                 {selectedBlog.excerpt}
               </p>
               <p>
-                {selectedBlog.content}
+                {selectedBlog.content || selectedBlog.excerpt}
               </p>
             </div>
 
