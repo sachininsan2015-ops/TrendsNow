@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Search, TrendingUp, Flame, Clock, Lock, Unlock, Database, Sparkles, X, ArrowRight } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
-const FALLBACK_TRENDS = [
+const INITIAL_TRENDS = [
   { id: 1, title: 'AI Agents Revolution 2026', category: 'Technology', search_volume: '1.2M searches', growth: '+245%', city: 'Delhi', country: 'India', ranking_keywords: ['ai', 'future', 'tech'], created_at: new Date().toISOString() },
   { id: 2, title: 'Global Stock Market Rally', category: 'Finance', search_volume: '850K searches', growth: '+120%', city: 'Mumbai', country: 'India', ranking_keywords: ['stocks', 'economy', 'finance'], created_at: new Date().toISOString() },
   { id: 3, title: 'Next-Gen VR Gaming Launch', category: 'Entertainment', search_volume: '2.1M searches', growth: '+310%', city: 'Bengaluru', country: 'India', ranking_keywords: ['gaming', 'vr', 'tech'], created_at: new Date().toISOString() }
 ];
 
-const FALLBACK_BLOGS = [
+const INITIAL_BLOGS = [
   { 
     id: 1, 
     title: 'The Rise of Autonomous AI Agents in 2026', 
@@ -22,8 +22,8 @@ const FALLBACK_BLOGS = [
 ];
 
 export function App() {
-  const [trends, setTrends] = useState(FALLBACK_TRENDS);
-  const [blogs, setBlogs] = useState(FALLBACK_BLOGS);
+  const [trends, setTrends] = useState(INITIAL_TRENDS);
+  const [blogs, setBlogs] = useState(INITIAL_BLOGS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
@@ -41,25 +41,31 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    async function loadData() {
+    async function fetchLiveSupabaseData() {
       try {
-        const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*').order('created_at', { ascending: false });
-        const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*').order('created_at', { ascending: false });
-        
-        if (trendsData && trendsData.length > 0) {
-          setTrends(trendsData);
+        const { data: liveTrends, error: trendErr } = await supabase.from('live_trends').select('*');
+        const { data: liveBlogs, error: blogErr } = absSelectCheck(liveTrends, liveBlogs);
+
+        if (trendErr) console.error('Trend fetch error:', trendErr);
+        if (blogErr) console.error('Blog fetch error:', blogErr);
+
+        if (liveTrends && liveTrends.length > 0) {
+          setTrends(liveTrends);
         }
-        if (blogsData && blogsData.length > 0) {
-          setBlogs(blogsData);
+        if (liveBlogs && liveBlogs.length > 0) {
+          setBlogs(liveBlogs);
         }
-        if (trendErr) console.error(trendErr);
-        if (blogErr) console.error(blogErr);
       } catch (err) {
-        console.error('Database fetch error:', err);
+        console.error('Supabase connection exception:', err);
       }
     }
-    loadData();
+    fetchLiveSupabaseData();
   }, []);
+
+  async function absSelectCheck(trendsRes, blogsRes) {
+    const { data: liveBlogs, error: blogErr } = await supabase.from('automated_blogs').select('*');
+    return { data: liveBlogs, error: blogErr };
+  }
 
   const filteredTrends = trends.filter(trend => {
     const matchesSearch = !searchQuery || 
