@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search, TrendingUp, Flame, Clock, Lock, Unlock, Database, Sparkles, X, ArrowRight } from 'lucide-react';
-import { supabase } from './supabaseClient';
 
-const INITIAL_TRENDS = [
+const STATIC_TRENDS = [
   { id: 1, title: 'AI Agents Revolution 2026', category: 'Technology', search_volume: '1.2M searches', growth: '+245%', city: 'Delhi', country: 'India', ranking_keywords: ['ai', 'future', 'tech'], created_at: new Date().toISOString() },
   { id: 2, title: 'Global Stock Market Rally', category: 'Finance', search_volume: '850K searches', growth: '+120%', city: 'Mumbai', country: 'India', ranking_keywords: ['stocks', 'economy', 'finance'], created_at: new Date().toISOString() },
   { id: 3, title: 'Next-Gen VR Gaming Launch', category: 'Entertainment', search_volume: '2.1M searches', growth: '+310%', city: 'Bengaluru', country: 'India', ranking_keywords: ['gaming', 'vr', 'tech'], created_at: new Date().toISOString() }
 ];
 
-const INITIAL_BLOGS = [
+const STATIC_BLOGS = [
   { 
     id: 1, 
     title: 'The Rise of Autonomous AI Agents in 2026', 
@@ -22,8 +21,8 @@ const INITIAL_BLOGS = [
 ];
 
 export function App() {
-  const [trends, setTrends] = useState(INITIAL_TRENDS);
-  const [blogs, setBlogs] = useState(INITIAL_BLOGS);
+  const [trends, setTrends] = useState(STATIC_TRENDS);
+  const [blogs, setBlogs] = useState(STATIC_BLOGS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
@@ -39,33 +38,6 @@ export function App() {
       setIsAdmin(true);
     }
   }, []);
-
-  useEffect(() => {
-    async function fetchLiveSupabaseData() {
-      try {
-        const { data: liveTrends, error: trendErr } = await supabase.from('live_trends').select('*');
-        const { data: liveBlogs, error: blogErr } = absSelectCheck(liveTrends, liveBlogs);
-
-        if (trendErr) console.error('Trend fetch error:', trendErr);
-        if (blogErr) console.error('Blog fetch error:', blogErr);
-
-        if (liveTrends && liveTrends.length > 0) {
-          setTrends(liveTrends);
-        }
-        if (liveBlogs && liveBlogs.length > 0) {
-          setBlogs(liveBlogs);
-        }
-      } catch (err) {
-        console.error('Supabase connection exception:', err);
-      }
-    }
-    fetchLiveSupabaseData();
-  }, []);
-
-  async function absSelectCheck(trendsRes, blogsRes) {
-    const { data: liveBlogs, error: blogErr } = await supabase.from('automated_blogs').select('*');
-    return { data: liveBlogs, error: blogErr };
-  }
 
   const filteredTrends = trends.filter(trend => {
     const matchesSearch = !searchQuery || 
@@ -125,7 +97,7 @@ export function App() {
             )}
             <div className="hidden sm:flex items-center space-x-2 text-xs bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-500/20">
               <Database className="w-4 h-4 text-indigo-400 animate-spin" />
-              <span>Supabase Live Sync</span>
+              <span>Autonomous Live Sync</span>
             </div>
           </div>
         </div>
@@ -304,7 +276,7 @@ export function App() {
                 {selectedBlog.excerpt}
               </p>
               <p>
-                {selectedBlog.content || 'Full article content about automated search intelligence going viral worldwide.'}
+                {selectedBlog.content}
               </p>
             </div>
 
