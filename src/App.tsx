@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, Flame, Clock, Lock, Unlock, Database, Sparkles, X, ArrowRight } from 'lucide-react';
+import { Search, TrendingUp, Flame, Clock, Unlock, Database, Sparkles, X, ArrowRight } from 'lucide-react';
 
 export function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,13 +27,13 @@ export function App() {
 
   const filteredTrends = trends.filter(t => {
     const matchSearch = !searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.ranking_keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchCat = selectedCategory === 'All' || t.category === selectedCategory;
+    const matchCat = selectedCategory === 'All' || t.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchSearch && matchCat;
   });
 
   const filteredBlogs = blogs.filter(b => {
     const matchSearch = !searchQuery || b.title.toLowerCase().includes(searchQuery.toLowerCase()) || b.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCat = selectedCategory === 'All' || b.category === selectedCategory;
+    const matchCat = selectedCategory === 'All' || b.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchSearch && matchCat;
   });
 
@@ -126,37 +126,43 @@ export function App() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredTrends.map((trend) => (
-              <div key={trend.id} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold rounded-lg">
-                    {trend.category}
-                  </span>
-                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                    {trend.growth}
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="font-extrabold text-base text-white group-hover:text-indigo-300 transition-colors leading-snug">
-                    {trend.title}
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-1.5">
-                    Volume: <strong className="text-slate-200">{trend.search_volume}</strong> • {trend.city}, {trend.country}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
-                  {trend.ranking_keywords.map((kw, i) => (
-                    <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
-                      #{kw}
+          {filteredTrends.length === 0 ? (
+            <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
+              <p className="text-slate-300 text-sm font-semibold">No trends found matching your filter.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredTrends.map((trend) => (
+                <div key={trend.id} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold rounded-lg">
+                      {trend.category}
                     </span>
-                  ))}
+                    <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                      {trend.growth}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-extrabold text-base text-white group-hover:text-indigo-300 transition-colors leading-snug">
+                      {trend.title}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1.5">
+                      Volume: <strong className="text-slate-200">{trend.search_volume}</strong> • {trend.city}, {trend.country}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
+                    {trend.ranking_keywords.map((kw, i) => (
+                      <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
+                        #{kw}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4 pt-6 border-t border-slate-800">
@@ -167,31 +173,37 @@ export function App() {
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredBlogs.map((blog) => (
-              <article 
-                key={blog.id} 
-                onClick={() => setSelectedBlog(blog)}
-                className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
-              >
-                <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-                  <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category}</span>
-                  <span className="flex items-center space-x-1 text-slate-400">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{blog.read_time}</span>
-                  </span>
-                </div>
-                <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
-                <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{blog.excerpt}</p>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs text-indigo-400 font-bold">
-                  <span className="flex items-center space-x-1.5 group-hover:translate-x-1 transition-transform">
-                    <span>Read Full Autonomous Report</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </article>
-            ))}
-          </div>
+          {filteredBlogs.length === 0 ? (
+            <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
+              <p className="text-slate-400 text-sm">No editorial reports found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredBlogs.map((blog) => (
+                <article 
+                  key={blog.id} 
+                  onClick={() => setSelectedBlog(blog)}
+                  className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category}</span>
+                    <span className="flex items-center space-x-1 text-slate-400">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{blog.read_time}</span>
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
+                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{blog.excerpt}</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs text-indigo-400 font-bold">
+                    <span className="flex items-center space-x-1.5 group-hover:translate-x-1 transition-transform">
+                      <span>Read Full Autonomous Report</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
