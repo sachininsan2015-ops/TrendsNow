@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, Compass, Flame, Sparkles, HelpCircle, 
   Search, RefreshCw, Filter, ArrowUpRight, FileText, Clock, 
-  Globe, MapPin, Video, Settings, Lock, User, DollarSign, PlayCircle, Layers, CheckCircle2, Megaphone, Share2, Copy, Bell, Send, X
+  Globe, MapPin, Video, Settings, Lock, User, DollarSign, PlayCircle, Layers, CheckCircle2, Megaphone, Share2, Copy, Bell, Send, X, Menu
 } from 'lucide-react';
 
 export default function App() {
@@ -15,6 +15,7 @@ export default function App() {
   const [selectedTrendForScript, setSelectedTrendForScript] = useState('GPT-5 release date & architecture leaks');
   
   const [selectedBlog, setSelectedBlog] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [isShowingAdBreak, setIsShowingAdBreak] = useState(false);
   const [adCountdown, setAdCountdown] = useState(5);
@@ -46,7 +47,7 @@ export default function App() {
       id: 1, 
       title: 'How Real-Time Search Intelligence is Transforming Digital Marketing in 2026', 
       excerpt: 'Discover how predictive search trends and live data pipelines help creators stay ahead of algorithmic shifts.', 
-      content: 'In 2026, digital marketing is no longer about guessing what audiences want or relying on outdated keyword research; it is entirely driven by real-time search intelligence. Predictive data pipelines analyze millions of micro-queries across global and regional search networks to forecast momentum shifts 48 hours before mainstream adoption takes place. Brands and digital creators leveraging platforms like Trends Now are capturing hyper-intent traffic in competitive regions like Sirsa, Chandigarh, and London long before competitors even notice the traffic spike. By integrating live search telemetry into your content workflow, you transition from reactive posting to proactive market dominance. This comprehensive approach ensures higher conversion rates, superior audience retention, and sustainable organic growth across all digital touchpoints in the modern web ecosystem.',
+      content: 'In 2026, digital marketing is no longer about guessing what audiences want or relying on outdated keyword research; it is entirely driven by real-time search intelligence and trending now keywords. Predictive data pipelines analyze millions of micro-queries across global and regional search networks to forecast momentum shifts 48 hours before mainstream adoption takes place. Brands and digital creators leveraging platforms like Trends Now are capturing hyper-intent traffic in competitive regions like Sirsa, Chandigarh, and London long before competitors even notice the traffic spike. By integrating live search telemetry into your content workflow, you transition from reactive posting to proactive market dominance. This comprehensive approach ensures higher conversion rates, superior audience retention, and sustainable organic growth across all digital touchpoints in the modern web ecosystem.',
       date: 'October 25, 2026', readTime: '5 min read', category: 'Strategy' 
     },
     { 
@@ -183,12 +184,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
       
       {/* BLOG MODAL */}
       {selectedBlog && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 max-w-2xl w-full space-y-6 shadow-2xl relative max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-2xl w-full space-y-6 shadow-2xl relative max-h-[85vh] overflow-y-auto">
             <button 
               onClick={() => setSelectedBlog(null)}
               className="absolute top-5 right-5 text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full"
@@ -197,23 +198,23 @@ export default function App() {
             </button>
             <div className="space-y-3">
               <span className="text-xs font-semibold text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">{selectedBlog.category}</span>
-              <h2 className="text-2xl font-bold text-white leading-snug">{selectedBlog.title}</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white leading-snug">{selectedBlog.title}</h2>
               <p className="text-xs text-slate-400">{selectedBlog.date} • {selectedBlog.readTime}</p>
             </div>
             <div className="text-slate-300 text-sm leading-relaxed space-y-4 pt-4 border-t border-slate-800">
               <p>{selectedBlog.content}</p>
               <p>As real-time search queries scale across international and regional hubs, understanding these dynamics ensures sustainable digital authority and maximum programmatic ad revenue.</p>
             </div>
-            <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3 pt-6 border-t border-slate-800">
               <button 
                 onClick={() => handleCopyText('https://trendsnow.site/blog/' + selectedBlog.id, 'Blog Link')}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700"
+                className="w-full md:w-auto bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700"
               >
                 <Copy className="w-4 h-4" /> Copy Article Link
               </button>
               <button 
                 onClick={() => handleWhatsAppShare(selectedBlog.title)}
-                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border border-emerald-500/30"
+                className="w-full md:w-auto bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-emerald-500/30"
               >
                 <Share2 className="w-4 h-4" /> Share on WhatsApp
               </button>
@@ -224,8 +225,8 @@ export default function App() {
 
       {/* AD BREAK */}
       {isShowingAdBreak && (
-        <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 max-w-lg w-full text-center space-y-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-lg w-full text-center space-y-6 shadow-2xl">
             <div className="w-16 h-16 bg-gradient-to-tr from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto text-white animate-pulse">
               <Megaphone className="w-8 h-8" />
             </div>
@@ -233,7 +234,7 @@ export default function App() {
               <span className="text-xs bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 font-semibold uppercase">
                 Sponsored Ad Break (AdSense CPM Revenue)
               </span>
-              <h3 className="text-2xl font-bold text-white mt-3">Generating Your Viral Script...</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white mt-3">Generating Your Viral Script...</h3>
               <p className="text-sm text-slate-400 mt-1">Please wait {adCountdown} seconds while our AI neural engine compiles trending keywords.</p>
             </div>
             <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
@@ -244,32 +245,40 @@ export default function App() {
       )}
 
       {/* HEADER */}
-      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="bg-gradient-to-tr from-cyan-500 to-blue-600 p-2 rounded-xl shadow-lg">
-            <TrendingUp className="w-6 h-6 text-white" />
+      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-40 px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <div className="flex items-center space-x-3">
+            <div className="bg-gradient-to-tr from-cyan-500 to-blue-600 p-2 rounded-xl shadow-lg">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                Trends Now
+                <span className="text-[10px] md:text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">Micro-to-Global</span>
+              </h1>
+              <p className="text-[11px] text-slate-400">Real-Time Search Intelligence & Keyword Ranking</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              Trends Now
-              <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">Micro-to-Global</span>
-            </h1>
-            <p className="text-xs text-slate-400">Real-Time Search Intelligence & Keyword Ranking</p>
-          </div>
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden bg-slate-800 p-2 rounded-xl text-slate-200"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="flex-1 max-w-xl mx-8 relative">
+        <div className="w-full md:flex-1 md:max-w-xl md:mx-8 relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400" />
           <input 
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search any city (Sirsa, London), country, or keyword..." 
+            placeholder="Search Trending Now keywords, city, or country..." 
             className="w-full bg-slate-900 border border-cyan-500/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
           />
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-end w-full md:w-auto space-x-3">
           {isUserAdmin && (
             <div className="hidden md:flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-xs text-emerald-400 font-semibold">
               <DollarSign className="w-3.5 h-3.5" /> AdSense Active (Admin)
@@ -277,7 +286,7 @@ export default function App() {
           )}
           <button 
             onClick={handleRefresh}
-            className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition-all"
+            className="w-full md:w-auto flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition-all"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh Data
@@ -285,38 +294,39 @@ export default function App() {
         </div>
       </header>
 
-      <div className="flex flex-1">
-        <aside className="w-64 border-r border-slate-800 p-6 flex flex-col justify-between bg-slate-900/30">
+      <div className="flex flex-1 flex-col md:flex-row">
+        {/* SIDEBAR */}
+        <aside className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block w-full md:w-64 border-r border-slate-800 p-6 flex flex-col justify-between bg-slate-900/30`}>
           <nav className="space-y-2">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-3">Navigation</p>
-            <button onClick={() => setActiveTab('trending')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'trending' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+            <button onClick={() => { setActiveTab('trending'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'trending' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <Flame className="w-4 h-4" /> Trending Now ({filteredTrends.length})
             </button>
-            <button onClick={() => setActiveTab('upcoming')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'upcoming' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+            <button onClick={() => { setActiveTab('upcoming'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'upcoming' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <TrendingUp className="w-4 h-4" /> Upcoming Trends ({upcomingTrends.length})
             </button>
-            <button onClick={() => setActiveTab('explore')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'explore' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+            <button onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'explore' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <Compass className="w-4 h-4" /> Explore (City to Global)
             </button>
-            <button onClick={() => setActiveTab('blogs')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'blogs' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+            <button onClick={() => { setActiveTab('blogs'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'blogs' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <FileText className="w-4 h-4" /> Blogs & Insights ({blogPosts.length})
             </button>
-            <button onClick={() => setActiveTab('studio')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'studio' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+            <button onClick={() => { setActiveTab('studio'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'studio' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <Sparkles className="w-4 h-4" /> Creator Studio / Hub
             </button>
             
             {isUserAdmin && (
-              <button onClick={() => setActiveTab('admin')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'admin' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+              <button onClick={() => { setActiveTab('admin'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'admin' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
                 <Settings className="w-4 h-4" /> Admin Dashboard
               </button>
             )}
 
-            <button onClick={() => setActiveTab('faq')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'faq' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
+            <button onClick={() => { setActiveTab('faq'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 'faq' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}>
               <HelpCircle className="w-4 h-4" /> FAQ
             </button>
           </nav>
 
-          <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-3">
+          <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-3 mt-6 md:mt-0">
             <button onClick={() => { setNotificationSubscribed(true); alert('Notifications enabled successfully!'); }} className="w-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 py-2 rounded-xl font-semibold">
               {notificationSubscribed ? 'Notifications Active' : 'Allow Notifications'}
             </button>
@@ -339,10 +349,10 @@ export default function App() {
           </div>
         </aside>
 
-        <main className="flex-1 p-8 overflow-y-auto space-y-8">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto space-y-8">
           
           {/* SPONSORED AD BANNER */}
-          <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900 border border-cyan-500/30 rounded-2xl p-4 flex items-center justify-between shadow-lg">
+          <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900 border border-cyan-500/30 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
             <div className="flex items-center gap-4">
               <div className="bg-cyan-500/20 p-2.5 rounded-xl text-cyan-400 font-bold text-xs uppercase border border-cyan-500/30">Sponsored Ad</div>
               <div>
@@ -350,14 +360,13 @@ export default function App() {
                 <p className="text-xs text-slate-400">Promote your properties across Sirsa and Tricity with high-converting buyer leads.</p>
               </div>
             </div>
-            <a href="https://wa.me/" target="_blank" rel="noreferrer" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs transition-all">Learn More</a>
+            <a href="https://wa.me/" target="_blank" rel="noreferrer" className="w-full md:w-auto text-center bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs transition-all">Learn More</a>
           </div>
 
           {activeTab === 'trending' && (
             <div className="space-y-6">
-              {/* Timeframe & Category Filters */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
-                <div className="flex-1">
+              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4 shadow-sm">
+                <div className="w-full md:flex-1">
                   <label className="text-xs text-slate-400 block mb-1">Time Frame Filter</label>
                   <select 
                     value={timeframe} 
@@ -372,7 +381,7 @@ export default function App() {
                     <option>Past 30 days</option>
                   </select>
                 </div>
-                <div className="flex-1">
+                <div className="w-full md:flex-1">
                   <label className="text-xs text-slate-400 block mb-1">Category Filter</label>
                   <select 
                     value={category} 
@@ -389,7 +398,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {filteredTrends.map((item) => (
                   <div key={item.id} className="bg-slate-900/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition-all flex flex-col justify-between">
                     <div>
@@ -429,7 +438,7 @@ export default function App() {
               </div>
               <div className="space-y-4">
                 {upcomingTrends.map((item) => (
-                  <div key={item.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+                  <div key={item.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                       <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">{item.category}</span>
                       <h3 className="text-lg font-bold text-white mt-2 mb-1">{item.title}</h3>
@@ -445,7 +454,7 @@ export default function App() {
           {activeTab === 'explore' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-white mb-2">Explore Micro-to-Global Intelligence</h2>
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
                   <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Globe className="w-5 h-5 text-cyan-400" /> Global Macro Trends</h3>
                   <p className="text-xs text-slate-400 mb-4">Real-time aggregate data across North America, Europe, and Asia-Pacific markets.</p>
@@ -464,7 +473,7 @@ export default function App() {
                 <h2 className="text-2xl font-bold text-white mb-2">Blogs & Insights ({blogPosts.length} Articles Live)</h2>
                 <p className="text-sm text-slate-400">Fully SEO-optimized articles with automated daily publishing (2 blogs/day). Click any article to read full content.</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {blogPosts.map((post) => (
                   <div key={post.id} onClick={() => setSelectedBlog(post)} className="bg-slate-900/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition-all">
                     <div>
@@ -486,7 +495,7 @@ export default function App() {
             <div className="space-y-6 max-w-4xl bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
               <h2 className="text-2xl font-bold text-white mb-2">Creator Studio / Creator Hub (Multi-Language)</h2>
               
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="text-xs font-semibold text-slate-300 block mb-2">Select Trend Topic</label>
                   <select 
@@ -549,7 +558,7 @@ export default function App() {
               <h2 className="text-2xl font-bold text-white mb-1">World-Class Admin & Monetization Monitoring</h2>
               <p className="text-sm text-slate-400">Monitor ad impressions, CPM earnings, and automated publishing.</p>
               
-              <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
                 <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5">
                   <p className="text-xs text-slate-400 mb-1">Estimated Ad Revenue (Today)</p>
                   <h3 className="text-2xl font-bold text-emerald-400">$48.50 USD</h3>
