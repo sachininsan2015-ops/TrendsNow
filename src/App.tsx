@@ -7,12 +7,12 @@ const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   const keywords = ['ai', 'crypto', 'stocks', 'cinema', 'economy', 'gaming', 'tech', 'startup', 'innovation', 'reels', 'growth', 'infra'];
   
   return {
-    id: `trend-${i + 1}`,
-    title: `Real-Time Search Peak #${i + 1}: ${categories[i % 4]} & Viral Ecosystem Surge`,
+    id: `trend-live-${i + 1}`,
+    title: `Real-Time Search Intelligence Peak #${i + 1}: ${categories[i % 4]} & Viral Ecosystem Surge`,
     category: categories[i % 4],
     search_volume: `${(Math.random() * 9 + 0.5).toFixed(1)}M searches`,
     growth: `+${Math.floor(Math.random() * 600 + 50)}%`,
-    city: cities[i % cities.length],// updated
+    city: cities[i % cities.length],
     country: i % 6 === 5 ? 'Global' : 'India',
     ranking_keywords: [keywords[i % keywords.length], keywords[(i + 4) % keywords.length], 'trend2026', 'viral'],
     created_at: new Date(Date.now() - (i * 3600000 * 2.5)).toISOString()
@@ -20,7 +20,7 @@ const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
 });
 
 const ULTIMATE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
-  id: `blog-${i + 1}`,
+  id: `blog-live-${i + 1}`,
   title: `Autonomous Editorial Intelligence Report #${i + 1}: Scaling Real-Time Search Ecosystems`,
   slug: `autonomous-report-${i + 1}`,
   excerpt: `Comprehensive deep dive into micro-to-global search analytics, algorithmic publishing, and high-frequency trend tracking across digital platforms.`,
@@ -348,7 +348,7 @@ export function App() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="scale-up space-y-3">
+            <div className="space-y-3">
               <div className="flex items-center space-x-2 text-xs">
                 <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold rounded-lg">
                   {selectedBlog.category}
