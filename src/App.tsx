@@ -1,47 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Flame, Clock, Unlock, Lock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle, Database, Globe } from 'lucide-react';
+import { Search, TrendingUp, Flame, Clock, Unlock, Lock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
-const MASTER_TRENDS_POOL = Array.from({ length: 150 }, (_, i) => {
+const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   const categories = ['Technology', 'Finance', 'Entertainment', 'Global News'];
   const cities = ['Sirsa', 'Delhi', 'Mumbai', 'Bengaluru', 'Chandigarh', 'Global'];
-  const keywordsPool = ['ai', 'crypto', 'stocks', 'cinema', 'economy', 'gaming', 'tech', 'startup', 'innovation', 'reels', 'growth', 'infra'];
+  const keywords = ['ai', 'crypto', 'stocks', 'cinema', 'economy', 'gaming', 'tech', 'startup', 'innovation', 'reels', 'growth', 'infra'];
   
   return {
     id: `trend-${i + 1}`,
-    title: `Live Search Intelligence Peak #${i + 1}: ${categories[i % 4]} & Viral Ecosystem Surge`,
+    title: `Real-Time Search Peak #${i + 1}: ${categories[i % 4]} & Viral Ecosystem Surge`,
     category: categories[i % 4],
-    search_volume: `${(Math.random() * 8 + 0.2).toFixed(1)}M searches`,
-    growth: `+${Math.floor(Math.random() * 500 + 45)}%`,
+    search_volume: `${(Math.random() * 9 + 0.5).toFixed(1)}M searches`,
+    growth: `+${Math.floor(Math.random() * 600 + 50)}%`,
     city: cities[i % cities.length],
     country: i % 6 === 5 ? 'Global' : 'India',
-    ranking_keywords: [keywordsPool[i % keywordsPool.length], keywordsPool[(i + 3) % keywordsPool.length], 'viral2026', 'trending'],
-    created_at: new Date(Date.now() - (i * 3600000 * 3.5)).toISOString()
+    ranking_keywords: [keywords[i % keywords.length], keywords[(i + 4) % keywords.length], 'trend2026', 'viral'],
+    created_at: new Date(Date.now() - (i * 3600000 * 2.5)).toISOString()
   };
 });
 
-const MASTER_BLOGS_POOL = Array.from({ length: 45 }, (_, i) => ({
+const ULTIMATE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
   id: `blog-${i + 1}`,
-  title: `Autonomous Editorial Intelligence & Market Report #${i + 1}`,
+  title: `Autonomous Editorial Intelligence Report #${i + 1}: Scaling Real-Time Search Ecosystems`,
   slug: `autonomous-report-${i + 1}`,
-  excerpt: `Comprehensive deep dive into real-time micro-to-global search analytics, algorithmic publishing, and high-frequency trend tracking across digital ecosystems.`,
+  excerpt: `Comprehensive deep dive into micro-to-global search analytics, algorithmic publishing, and high-frequency trend tracking across digital platforms.`,
   content: `Autonomous intelligence systems are completely reshaping how digital trends are captured, analyzed, and published worldwide without human intervention. In 2026, real-time search intelligence engines leverage advanced neural architectures to aggregate viral sentiment, predict breakout search queries, and autonomously generate deep editorial reports within seconds. Daily publications ensure continuous audience engagement across multiple digital verticals, optimizing search rankings and programmatic traffic distribution seamlessly.`,
   category: ['Technology', 'Finance', 'Entertainment', 'Global News'][i % 4],
   read_time: `${Math.floor(Math.random() * 4 + 3)} min read`,
-  created_at: new Date(Date.now() - (i * 3600000 * 10)).toISOString()
+  created_at: new Date(Date.now() - (i * 3600000 * 8)).toISOString()
 }));
 
 export function App() {
-  const [trends, setTrends] = useState(MASTER_TRENDS_POOL);
-  const [blogs, setBlogs] = useState(MASTER_BLOGS_POOL);
+  const [trends, setTrends] = useState(ULTIMATE_MASTER_TRENDS);
+  const [blogs, setBlogs] = useState(ULTIMATE_MASTER_BLOGS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState('portal'); // 'portal' or 'creator'
+  const [activeTab, setActiveTab] = useState('portal');
   const [selectedBlog, setSelectedBlog] = useState(null);
 
-  // Creator Studio Form State
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('Technology');
   const [newExcerpt, setNewExcerpt] = useState('');
@@ -56,17 +55,17 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    async function fetchSupabaseData() {
+    async function syncDatabase() {
       try {
         const { data: dbTrends } = await supabase.from('live_trends').select('*');
         const { data: dbBlogs } = await supabase.from('automated_blogs').select('*');
-        if (dbTrends && dbTrends.length > 0) setTrends([...dbTrends, ...MASTER_TRENDS_POOL]);
-        if (dbBlogs && dbBlogs.length > 0) setBlogs([...dbBlogs, ...MASTER_BLOGS_POOL]);
+        if (dbTrends && dbTrends.length > 0) setTrends([...dbTrends, ...ULTIMATE_MASTER_TRENDS]);
+        if (dbBlogs && dbBlogs.length > 0) setBlogs([...dbBlogs, ...ULTIMATE_MASTER_BLOGS]);
       } catch (err) {
-        console.error('Supabase sync active with master pool');
+        console.error(err);
       }
     }
-    fetchSupabaseData();
+    syncDatabase();
   }, []);
 
   const handlePublishBlog = async (e) => {
