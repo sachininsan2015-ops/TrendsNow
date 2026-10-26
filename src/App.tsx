@@ -46,7 +46,18 @@ export function App() {
       (trend.ranking_keywords && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
     
     const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category === selectedCategory);
-    return matchesSearch && matchesCategory;
+    
+    let matchesTimeframe = true;
+    if (timeframe !== 'All' && trend.created_at) {
+      const trendDate = new Date(trend.created_at);
+      const now = new Date();
+      const diffHours = Math.abs(now.getTime() - trendDate.getTime()) / 36e5;
+      if (timeframe === 'Past 24 hours' && diffHours > 24) matchesTimeframe = false;
+      if (timeframe === 'Past 7 days' && diffHours > 24 * 7) matchesTimeframe = false;
+      if (timeframe === 'Past 30 days' && diffHours > 24 * 30) matchesTimeframe = false;
+    }
+
+    return matchesSearch && matchesCategory && matchesTimeframe;
   });
 
   return (
@@ -106,7 +117,7 @@ export function App() {
                   onClick={() => setTimeframe(tf)}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                     timeframe === tf
-                      ? 'bg-slate-800 text-indigo-300 border border-indigo-500/40 shadow-sm'
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                       : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800 border border-slate-800'
                   }`}
                 >
