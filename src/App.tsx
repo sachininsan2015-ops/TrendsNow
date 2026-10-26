@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Flame, Clock, Lock, Unlock, Database, Sparkles } from 'lucide-react';
+import { Search, TrendingUp, Flame, Clock, Lock, Unlock, Database, Sparkles, X, BookOpen, ArrowRight } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
-const FALLBACK_TRENDS = [
-  { id: 1, title: 'AI Agents Revolution 2026', category: 'Technology', search_volume: '1.2M searches', growth: '+245%', city: 'Delhi', country: 'India', ranking_keywords: ['ai', 'future', 'tech'] },
-  { id: 2, title: 'Global Stock Market Rally', category: 'Finance', search_volume: '850K searches', growth: '+120%', city: 'Mumbai', country: 'India', ranking_keywords: ['stocks', 'economy', 'finance'] },
-  { id: 3, title: 'Next-Gen VR Gaming Launch', category: 'Entertainment', search_volume: '2.1M searches', growth: '+310%', city: 'Bengaluru', country: 'India', ranking_keywords: ['gaming', 'vr', 'tech'] }
-];
-
-const FALLBACK_BLOGS = [
-  { id: 1, title: 'The Rise of Autonomous AI Agents in 2026', slug: 'rise-of-autonomous-ai-agents-2026', excerpt: 'Discover how autonomous AI agents are transforming global search intelligence and automated publishing ecosystems.', category: 'Technology', read_time: '4 min read' }
-];
-
 export function App() {
-  const [trends, setTrends] = useState(FALLBACK_TRENDS);
-  const [blogs, setBlogs] = useState(FALLBACK_BLOGS);
-  const [loading, setLoading] = useState(false);
+  const [trends, setTrends] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -33,21 +24,19 @@ export function App() {
 
   useEffect(() => {
     async function loadData() {
+      setLoading(true);
       try {
         const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*').order('created_at', { ascending: false });
         const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*').order('created_at', { ascending: false });
         
-        if (trendsData && trendsData.length > 0) {
-          setTrends(trendsData);
-        }
-        if (blogsData && blogsData.length > 0) {
-          setBlogs(blogsData);
-        }
+        if (trendsData) setTrends(trendsData);
+        if (blogsData) setBlogs(blogsData);
         if (trendErr) console.error(trendErr);
         if (blogErr) console.error(blogErr);
       } catch (err) {
         console.error('Database fetch error:', err);
       }
+      setLoading(false);
     }
     loadData();
   }, []);
@@ -58,6 +47,25 @@ export function App() {
       (trend.ranking_keywords && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
     
     const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category === selectedCategory);
+    
+    let matchesTimeframe = true;
+    if (timeframe !== 'All' && trend.created_at) {
+      const trendDate = new Date(trend.created_at);
+      const now = new Date();
+      const diffHours = Math.abs(now.getTime() - trendDate.getTime()) / 36e5;
+      if (timeframe === 'Past 24 hours' && diffHours > 24) matchesTimeframe = false;
+      if (timeframe === 'Past 7 days' && diffHours > 24 * 7) matchesTimeframe = false;
+      if (timeframe === 'Past 30 days' && diffHours > 24 * 30) matchesTimeframe = false;
+    }
+
+    return matchesSearch && matchesCategory && matchesTimeframe;
+  });
+
+  const filteredBlogs = blogs.filter(blog => {
+    const matchesSearch = !searchQuery || 
+      (blog.title && blog.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (blog.excerpt && blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = selectedCategory === 'All' || (blog.category && blog.category === selectedCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -157,7 +165,11 @@ export function App() {
             </span>
           </div>
 
-          {filteredTrends.length === 0 ? (
+          {loading ? (
+            <div className="py-20 text-center text-slate-400 animate-pulse font-medium">
+              Fetching intelligence from Supabase...
+            </div>
+          ) : filteredTrends.length === 0 ? (
             <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl space-y-2">
               <p className="text-slate-300 text-sm font-semibold">No active intelligence found matching criteria.</p>
             </div>
@@ -202,30 +214,89 @@ export function App() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-black flex items-center space-x-2 text-white">
               <Sparkles className="w-5 h-5 text-rose-400" />
-              <span>Autonomous Editorial Intelligence ({blogs.length})</span>
+              <span>Autonomous Editorial Intelligence ({filteredBlogs.length})</span>
             </h3>
           </div>
 
-          {blogs.length === 0 ? (
+          {filteredBlogs.length === 0 ? (
             <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
               <p className="text-slate-400 text-sm">No editorial insights published yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {blogs.map((blog) => (
-                <article key={blog.id || blog.slug} className="bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 space-y-4 transition-all shadow-xl">
+              {filteredBlogs.map((blog) => (
+                <article 
+                  key={blog.id || blog.slug} 
+                  onClick={() => setSelectedBlog(blog)}
+                  className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
+                >
                   <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
                     <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category || 'Technology'}</span>
-                    <span>{blog.read_time || '5 min read'}</span>
+                    <span className="flex items-center space-x-1 text-slate-400">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{blog.read_time || '5 min read'}</span>
+                    </span>
                   </div>
-                  <h4 className="text-xl font-black text-white leading-snug">{blog.title}</h4>
-                  <p className="text-sm text-slate-300 leading-relaxed">{blog.excerpt}</p>
+                  <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
+                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{blog.excerpt}</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs text-indigo-400 font-bold">
+                    <span className="flex items-center space-x-1.5 group-hover:translate-x-1 transition-transform">
+                      <span>Read Full Autonomous Report</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 </article>
               ))}
             </div>
           )}
         </div>
       </main>
+
+      {selectedBlog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 md:p-8 space-y-6 shadow-2xl relative">
+            <button 
+              onClick={() => setSelectedBlog(null)}
+              className="absolute top-6 right-6 p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2 text-xs">
+                <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold rounded-lg">
+                  {selectedBlog.category || 'Technology'}
+                </span>
+                <span className="text-slate-400 flex items-center space-x-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{selectedBlog.read_time || '4 min read'}</span>
+                </span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                {selectedBlog.title}
+              </h2>
+            </div>
+
+            <div className="space-y-4 text-slate-300 text-sm md:text-base leading-relaxed border-t border-slate-800 pt-4">
+              <p className="font-semibold text-indigo-200 bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20">
+                {selectedBlog.excerpt}
+              </p>
+              <p>
+                {selectedBlog.content || 'Full article content about automated search intelligence going viral worldwide. Autonomous intelligence systems are reshaping how digital trends are captured, analyzed, and published in real-time without human intervention.'}
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800 flex justify-end">
+              <button
+                onClick={() => setSelectedBlog(null)}
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition-all"
+              >
+                Close Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="border-t border-slate-800 bg-slate-900/40 py-8 mt-12 text-center text-xs text-slate-400 font-medium">
         <p>© 2026 TrendsNow.site • Real-Time Search Intelligence & Autonomous Publishing Ecosystem</p>
