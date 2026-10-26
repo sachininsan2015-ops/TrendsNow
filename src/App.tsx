@@ -25,11 +25,13 @@ export function App() {
     async function loadData() {
       setLoading(true);
       try {
-        const { data: trendsData } = await supabase.from('live_trends').select('*').order('created_at', { ascending: false });
-        const { data: blogsData } = await supabase.from('automated_blogs').select('*').order('created_at', { ascending: false });
+        const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*');
+        const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*');
         
         if (trendsData) setTrends(trendsData);
         if (blogsData) setBlogs(blogsData);
+        if (trendErr) console.error(trendErr);
+        if (blogErr) console.error(blogErr);
       } catch (err) {
         console.error('Database fetch error:', err);
       }
@@ -40,9 +42,8 @@ export function App() {
 
   const filteredTrends = trends.filter(trend => {
     const matchesSearch = !searchQuery || 
-      (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (trend.ranking_keywords && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
-    const matchesCategory = selectedCategory === 'All' || trend.category === selectedCategory;
+      (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category === selectedCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -83,31 +84,13 @@ export function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 p-6 border border-indigo-500/30 shadow-2xl">
-          <div className="absolute -right-10 -bottom-10 w-56 h-56 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="space-y-2 text-center md:text-left">
-              <span className="px-3 py-1 bg-rose-500/20 text-rose-400 text-xs font-bold rounded-lg border border-rose-500/30 uppercase tracking-wider">
-                Enterprise Partner Network
-              </span>
-              <h2 className="text-xl md:text-2xl font-black text-white">Global Search Intelligence & High-CPM Syndication</h2>
-              <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-                Empowering real-time programmatic monetization and automated viral news distribution across global nodes.
-              </p>
-            </div>
-            <button className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-rose-500 hover:from-indigo-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-105 whitespace-nowrap">
-              Access API & SDKs
-            </button>
-          </div>
-        </div>
-
         <div className="space-y-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search viral trends, keywords (#tags)..."
+                placeholder="Search viral trends..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 shadow-inner transition-all"
@@ -162,11 +145,11 @@ export function App() {
 
           {loading ? (
             <div className="py-20 text-center text-slate-400 animate-pulse font-medium">
-              Fetching high-frequency intelligence from Supabase nodes...
+              Fetching intelligence from Supabase...
             </div>
           ) : filteredTrends.length === 0 ? (
             <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl space-y-2">
-              <p className="text-slate-300 text-sm font-semibold">No active intelligence found matching criteria.</p>
+              <p className="text-slate-300 text-sm font-semibold">No active trends found in database.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -186,19 +169,9 @@ export function App() {
                       {trend.title}
                     </h4>
                     <p className="text-xs text-slate-400 mt-1.5">
-                      Search Volume: <strong className="text-slate-200">{trend.search_volume || 'High'}</strong> • {trend.city || 'Global'}, {trend.country || 'World'}
+                      Volume: <strong className="text-slate-200">{trend.search_volume || 'High'}</strong> • {trend.city || 'Global'}, {trend.country || 'World'}
                     </p>
                   </div>
-
-                  {trend.ranking_keywords && trend.ranking_keywords.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
-                      {trend.ranking_keywords.map((kw, i) => (
-                        <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
-                          #{kw}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -211,9 +184,6 @@ export function App() {
               <Sparkles className="w-5 h-5 text-rose-400" />
               <span>Autonomous Editorial Intelligence ({blogs.length})</span>
             </h3>
-            <span className="text-xs text-slate-400 font-medium bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
-              Published 2x Daily via Cron Engine
-            </span>
           </div>
 
           {blogs.length === 0 ? (
@@ -230,15 +200,6 @@ export function App() {
                   </div>
                   <h4 className="text-xl font-black text-white leading-snug">{blog.title}</h4>
                   <p className="text-sm text-slate-300 leading-relaxed">{blog.excerpt}</p>
-                  <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                    <span className="text-xs text-slate-500 font-medium">
-                      {blog.created_at ? new Date(blog.created_at).toLocaleDateString() : 'Today'}
-                    </span>
-                    <button className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center space-x-1">
-                      <span>Read Complete Intelligence Report</span>
-                      <span>→</span>
-                    </button>
-                  </div>
                 </article>
               ))}
             </div>
