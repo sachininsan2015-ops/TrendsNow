@@ -24,13 +24,15 @@ export function App() {
     async function loadData() {
       setLoading(true);
       try {
-        const { data: liveTrendsData } = await supabase.from('live_trends').select('*').order('created_at', { ascending: false });
-        const { data: automatedBlogsData } = await supabase.from('automated_blogs').select('*').order('created_at', { ascending: false });
+        const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*');
+        const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*');
         
-        if (liveTrendsData) setTrends(liveTrendsData);
-        if (automatedBlogsData) setBlogs(automatedBlogsData);
+        if (trendsData) setTrends(trendsData);
+        if (blogsData) setBlogs(blogsData);
+        if (trendErr) console.error(trendErr);
+        if (blogErr) console.error(blogErr);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('Fetch error:', err);
       }
       setLoading(false);
     }
@@ -38,7 +40,7 @@ export function App() {
   }, []);
 
   const filteredTrends = trends.filter(trend => {
-    const matchesSearch = trend.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = !searchQuery || (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = selectedCategory === 'All' || trend.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -127,23 +129,23 @@ export function App() {
             </div>
           ) : filteredTrends.length === 0 ? (
             <div className="py-16 text-center bg-slate-900/40 border border-slate-800 rounded-2xl">
-              <p className="text-slate-400 text-sm">No live trends found in database. Add rows in Supabase table.</p>
+              <p className="text-slate-400 text-sm">No live trends found in database.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredTrends.map((trend) => (
-                <div key={trend.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                <div key={trend.id || trend.title} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-semibold rounded-lg">
-                      {trend.category}
+                      {trend.category || 'General'}
                     </span>
                     <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                      {trend.growth}
+                      {trend.growth || '+100%'}
                     </span>
                   </div>
                   <div>
                     <h4 className="font-bold text-base text-white">{trend.title}</h4>
-                    <p className="text-xs text-slate-400 mt-1">Volume: {trend.search_volume} • {trend.city}, {trend.country}</p>
+                    <p className="text-xs text-slate-400 mt-1">Volume: {trend.search_volume || 'N/A'} • {trend.city || 'Global'}, {trend.country || 'World'}</p>
                   </div>
                 </div>
               ))}
@@ -165,8 +167,8 @@ export function App() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {blogs.map((blog) => (
-                <article key={blog.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
-                  <span className="text-xs text-indigo-400 font-semibold">{blog.category}</span>
+                <article key={blog.id || blog.slug} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+                  <span className="text-xs text-indigo-400 font-semibold">{blog.category || 'Tech'}</span>
                   <h4 className="text-xl font-bold text-white">{blog.title}</h4>
                   <p className="text-sm text-slate-300">{blog.excerpt}</p>
                 </article>
