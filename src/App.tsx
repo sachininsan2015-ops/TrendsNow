@@ -1,39 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Flame, Clock, Unlock, Lock, Database, Sparkles, X, ArrowRight, PlusCircle, LayoutDashboard, Globe } from 'lucide-react';
+import { Search, TrendingUp, Flame, Clock, Unlock, Lock, LayoutDashboard, Sparkles, X, ArrowRight, Loader2, PlusCircle, Database } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
-const SEED_TRENDS = Array.from({ length: 45 }, (_, i) => ({
-  id: i + 1,
-  title: `Global Viral Search Trend #${i + 1}: AI & Automation Surge`,
-  category: i % 4 === 0 ? 'Technology' : i % 4 === 1 ? 'Finance' : i % 4 === 2 ? 'Entertainment' : 'Global News',
-  search_volume: `${(Math.random() * 3 + 0.5).toFixed(1)}M searches`,
-  growth: `+${Math.floor(Math.random() * 300 + 50)}%`,
-  city: i % 3 === 0 ? 'Delhi' : i % 3 === 1 ? 'Mumbai' : 'Bengaluru',
-  country: 'India',
-  ranking_keywords: ['ai', 'viral', '2026', 'trend', 'search'],
-  created_at: new Date(Date.now() - i * 3600000 * 5).toISOString()
-}));
-
-const SEED_BLOGS = Array.from({ length: 30 }, (_, i) => ({
-  id: i + 1,
-  title: `Autonomous Editorial Report #${i + 1}: The Future of Real-Time Intelligence`,
-  slug: `autonomous-report-${i + 1}`,
-  excerpt: `Discover how automated publishing and AI agents are revolutionizing global media, driving daily insights and high-speed search analytics.`,
-  content: `Autonomous intelligence systems are completely reshaping how digital trends are captured, analyzed, and published worldwide without human intervention. In 2026, real-time search intelligence engines leverage advanced neural architectures to aggregate viral sentiment, predict breakout search queries, and autonomously generate deep editorial reports within seconds. Daily publications ensure continuous audience engagement across multiple categories.`,
-  category: i % 3 === 0 ? 'Technology' : i % 3 === 1 ? 'Finance' : 'Global News',
-  read_time: `${Math.floor(Math.random() * 4 + 3)} min read`,
-  created_at: new Date(Date.now() - i * 3600000 * 12).toISOString()
-}));
-
 export function App() {
-  const [trends, setTrends] = useState(SEED_TRENDS);
-  const [blogs, setBlogs] = useState(SEED_BLOGS);
-  const [loading, setLoading] = useState(false);
+  const [trends, setTrends] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState('portal'); // 'portal' or 'creator'
+  const [activeTab, setActiveTab] = useState('portal');
   const [selectedBlog, setSelectedBlog] = useState(null);
 
   // Creator Studio Form State
@@ -51,24 +28,37 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    async function syncSupabase() {
+    async function fetchDatabaseContent() {
+      setLoading(true);
       try {
-        const { data: dbTrends } = await supabase.from('live_trends').select('*');
-        const { data: dbBlogs } = await supabase.from('automated_blogs').select('*');
-        if (dbTrends && dbTrends.length > 0) setTrends(dbTrends);
-        if (dbBlogs && dbBlogs.length > 0) setBlogs(dbBlogs);
-      } catch (e) {
-        console.error('Using local autonomous seed pool');
+        const { data: dbTrends, error: trendErr } = await supabase
+          .from('live_trends')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        const { data: dbBlogs, error: blogErr } = await supabase
+          .from('automated_blogs')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (trendErr) console.error('Trends fetch error:', trendErr);
+        if (blogErr) console.error('Blogs fetch error:', blogErr);
+
+        if (dbTrends) setTrends(dbTrends);
+        if (dbBlogs) setBlogs(dbBlogs);
+      } catch (err) {
+        console.error('Supabase connection error:', err);
+      } finally {
+        setLoading(false);
       }
     }
-    syncSupabase();
+    fetchDatabaseContent();
   }, []);
 
   const handlePublishBlog = async (e) => {
     e.preventDefault();
     if (!newTitle || !newExcerpt) return;
     const newEntry = {
-      id: Date.now(),
       title: newTitle,
       slug: newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       excerpt: newExcerpt,
@@ -78,17 +68,21 @@ export function App() {
       created_at: new Date().toISOString()
     };
 
-    setBlogs([newEntry, ...blogs]);
     try {
-      await supabase.from('automated_blogs').insert([newEntry]);
+      const { data, error } = await supabase.from('automated_blogs').insert([newEntry]).select();
+      if (error) {
+        alert('Error publishing to database: ' + error.message);
+      } else {
+        if (data) setBlogs([...data, ...blogs]);
+        setNewTitle('');
+        setNewExcerpt('');
+        setNewContent('');
+        setActiveTab('portal');
+        alert('Autonomous Report Published Successfully to Supabase!');
+      }
     } catch (err) {
-      console.error(err);
+      alert('Exception publishing report');
     }
-    setNewTitle('');
-    setNewExcerpt('');
-    setNewContent('');
-    setActiveTab('portal');
-    alert('Autonomous Report Published Successfully!');
   };
 
   const filteredTrends = trends.filter(trend => {
@@ -99,9 +93,12 @@ export function App() {
     const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category.toLowerCase() === selectedCategory.toLowerCase());
     
     let matchesTimeframe = true;
-    if (timeframe === 'Past 24 hours') matchesTimeframe = (Date.now() - new Date(trend.created_at).getTime()) <= 86400000;
-    if (timeframe === 'Past 7 days') matchesTimeframe = (Date.now() - new Date(trend.created_at).getTime()) <= 604800000;
-    if (timeframe === 'Past 30 days') matchesTimeframe = (Date.now() - new Date(trend.created_at).getTime()) <= 2592000000;
+    if (timeframe !== 'All' && trend.created_at) {
+      const diffHours = Math.abs(Date.now() - new Date(trend.created_at).getTime()) / 36e5;
+      if (timeframe === 'Past 24 hours' && diffHours > 24) matchesTimeframe = false;
+      if (timeframe === 'Past 7 days' && diffHours > 24 * 7) matchesTimeframe = false;
+      if (timeframe === 'Past 30 days' && diffHours > 24 * 30) matchesTimeframe = false;
+    }
 
     return matchesSearch && matchesCategory && matchesTimeframe;
   });
@@ -160,7 +157,7 @@ export function App() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
                 <h2 className="text-2xl font-black text-white">Autonomous Creator Studio</h2>
-                <p className="text-xs text-slate-400 mt-1">Publish live reports and daily autonomous editorial items directly.</p>
+                <p className="text-xs text-slate-400 mt-1">Publish live reports and daily autonomous editorial items directly to Supabase.</p>
               </div>
               <PlusCircle className="w-8 h-8 text-indigo-400" />
             </div>
@@ -178,20 +175,18 @@ export function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Category</label>
-                  <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
-                  >
-                    <option value="Technology">Technology</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="Global News">Global News</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Category</label>
+                <select
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
+                >
+                  <option value="Technology">Technology</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Global News">Global News</option>
+                </select>
               </div>
 
               <div>
@@ -222,7 +217,7 @@ export function App() {
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 text-white font-black text-xs rounded-xl shadow-lg transition-all"
                 >
-                  Publish Report Instantly
+                  Publish Report to Supabase
                 </button>
               </div>
             </form>
@@ -284,9 +279,15 @@ export function App() {
                 </h3>
               </div>
 
-              {filteredTrends.length === 0 ? (
-                <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-                  <p className="text-slate-300 text-sm font-semibold">No trends found matching your filter criteria.</p>
+              {loading ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center space-y-3 text-slate-400">
+                  <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+                  <p className="text-sm font-medium">Fetching live database trends...</p>
+                </div>
+              ) : filteredTrends.length === 0 ? (
+                <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl space-y-2">
+                  <p className="text-slate-300 text-sm font-semibold">No trends found matching criteria in Supabase.</p>
+                  <p className="text-xs text-slate-500">Ensure rows are populated in your `live_trends` table.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[600px] overflow-y-auto pr-2">
@@ -306,7 +307,7 @@ export function App() {
                           {trend.title}
                         </h4>
                         <p className="text-xs text-slate-400 mt-1.5">
-                          Volume: <strong className="text-slate-200">{trend.search_volume || '1.5M searches'}</strong> • {trend.city || 'Delhi'}, {trend.country || 'India'}
+                          Volume: <strong className="text-slate-200">{trend.search_volume || '1.5M'}</strong> • {trend.city || 'Global'}, {trend.country || 'India'}
                         </p>
                       </div>
 
@@ -333,9 +334,11 @@ export function App() {
                 </h3>
               </div>
 
-              {filteredBlogs.length === 0 ? (
+              {loading ? (
+                <div className="py-12 text-center text-slate-400 text-sm">Loading reports...</div>
+              ) : filteredBlogs.length === 0 ? (
                 <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-                  <p className="text-slate-400 text-sm">No editorial reports found.</p>
+                  <p className="text-slate-400 text-sm">No editorial reports found in database (`automated_blogs`).</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[500px] overflow-y-auto pr-2">
@@ -398,7 +401,7 @@ export function App() {
               <p className="font-semibold text-indigo-200 bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20">
                 {selectedBlog.excerpt}
               </p>
-              <p>
+              <p className="whitespace-pre-wrap">
                 {selectedBlog.content || selectedBlog.excerpt}
               </p>
             </div>
