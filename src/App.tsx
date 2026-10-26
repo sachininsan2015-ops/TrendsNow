@@ -7,7 +7,7 @@ const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   const keywords = ['ai', 'crypto', 'stocks', 'cinema', 'economy', 'gaming', 'tech', 'startup', 'innovation', 'reels', 'growth', 'infra'];
   
   return {
-    id: `trend-live-${i + 1}`,
+    id: `trend-pure-${i + 1}`,
     title: `Real-Time Search Intelligence Peak #${i + 1}: ${categories[i % 4]} & Viral Ecosystem Surge`,
     category: categories[i % 4],
     search_volume: `${(Math.random() * 9 + 0.5).toFixed(1)}M searches`,
@@ -20,7 +20,7 @@ const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
 });
 
 const ULTIMATE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
-  id: `blog-live-${i + 1}`,
+  id: `blog-pure-${i + 1}`,
   title: `Autonomous Editorial Intelligence Report #${i + 1}: Scaling Real-Time Search Ecosystems`,
   slug: `autonomous-report-${i + 1}`,
   excerpt: `Comprehensive deep dive into micro-to-global search analytics, algorithmic publishing, and high-frequency trend tracking across digital platforms.`,
