@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Search, TrendingUp, Flame, Clock, Unlock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle } from 'lucide-react';
 
-const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
+const INFINITE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   const categories = ['Technology', 'Finance', 'Entertainment', 'Global News'];
   const cities = ['Sirsa', 'Delhi', 'Mumbai', 'Bengaluru', 'Chandigarh', 'Global'];
   const keywords = ['ai', 'crypto', 'stocks', 'cinema', 'economy', 'gaming', 'tech', 'startup', 'innovation', 'reels', 'growth', 'infra'];
   
   return {
-    id: `trend-pure-${i + 1}`,
-    title: `Real-Time Search Intelligence Peak #${i + 1}: ${categories[i % 4]} & Viral Ecosystem Surge`,
+    id: `trend-node-${i + 1}`,
+    title: `Real-Time Search Ecosystem Peak #${i + 1}: ${categories[i % 4]} & Viral Intelligence Surge`,
     category: categories[i % 4],
     search_volume: `${(Math.random() * 9 + 0.5).toFixed(1)}M searches`,
     growth: `+${Math.floor(Math.random() * 600 + 50)}%`,
@@ -19,8 +19,8 @@ const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   };
 });
 
-const ULTIMATE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
-  id: `blog-pure-${i + 1}`,
+const INFINITE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
+  id: `blog-node-${i + 1}`,
   title: `Autonomous Editorial Intelligence Report #${i + 1}: Scaling Real-Time Search Ecosystems`,
   slug: `autonomous-report-${i + 1}`,
   excerpt: `Comprehensive deep dive into micro-to-global search analytics, algorithmic publishing, and high-frequency trend tracking across digital platforms.`,
@@ -31,8 +31,8 @@ const ULTIMATE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
 }));
 
 export function App() {
-  const [trends] = useState(ULTIMATE_MASTER_TRENDS);
-  const [blogs, setBlogs] = useState(ULTIMATE_MASTER_BLOGS);
+  const [trends] = useState(INFINITE_MASTER_TRENDS);
+  const [blogs, setBlogs] = useState(INFINITE_MASTER_BLOGS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
