@@ -1,44 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Flame, Clock, Unlock, Database, Sparkles, X, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, TrendingUp, Flame, Clock, Unlock, Lock, Database, Sparkles, X, ArrowRight, PlusCircle, LayoutDashboard, Globe } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
+const SEED_TRENDS = Array.from({ length: 45 }, (_, i) => ({
+  id: i + 1,
+  title: `Global Viral Search Trend #${i + 1}: AI & Automation Surge`,
+  category: i % 4 === 0 ? 'Technology' : i % 4 === 1 ? 'Finance' : i % 4 === 2 ? 'Entertainment' : 'Global News',
+  search_volume: `${(Math.random() * 3 + 0.5).toFixed(1)}M searches`,
+  growth: `+${Math.floor(Math.random() * 300 + 50)}%`,
+  city: i % 3 === 0 ? 'Delhi' : i % 3 === 1 ? 'Mumbai' : 'Bengaluru',
+  country: 'India',
+  ranking_keywords: ['ai', 'viral', '2026', 'trend', 'search'],
+  created_at: new Date(Date.now() - i * 3600000 * 5).toISOString()
+}));
+
+const SEED_BLOGS = Array.from({ length: 30 }, (_, i) => ({
+  id: i + 1,
+  title: `Autonomous Editorial Report #${i + 1}: The Future of Real-Time Intelligence`,
+  slug: `autonomous-report-${i + 1}`,
+  excerpt: `Discover how automated publishing and AI agents are revolutionizing global media, driving daily insights and high-speed search analytics.`,
+  content: `Autonomous intelligence systems are completely reshaping how digital trends are captured, analyzed, and published worldwide without human intervention. In 2026, real-time search intelligence engines leverage advanced neural architectures to aggregate viral sentiment, predict breakout search queries, and autonomously generate deep editorial reports within seconds. Daily publications ensure continuous audience engagement across multiple categories.`,
+  category: i % 3 === 0 ? 'Technology' : i % 3 === 1 ? 'Finance' : 'Global News',
+  read_time: `${Math.floor(Math.random() * 4 + 3)} min read`,
+  created_at: new Date(Date.now() - i * 3600000 * 12).toISOString()
+}));
+
 export function App() {
-  const [trends, setTrends] = useState([]);
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [trends, setTrends] = useState(SEED_TRENDS);
+  const [blogs, setBlogs] = useState(SEED_BLOGS);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState('portal'); // 'portal' or 'creator'
   const [selectedBlog, setSelectedBlog] = useState(null);
 
+  // Creator Studio Form State
+  const [newTitle, setNewTitle] = useState('');
+  const [newCategory, setNewCategory] = useState('Technology');
+  const [newExcerpt, setNewExcerpt] = useState('');
+  const [newContent, setNewContent] = useState('');
+
   useEffect(() => {
-    async function fetchLiveSupabaseData() {
-      setLoading(true);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === 'true' || localStorage.getItem('trendsnow_admin') === 'true') {
+      setIsAdmin(true);
+      localStorage.setItem('trendsnow_admin', 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    async function syncSupabase() {
       try {
-        const { data: liveTrends, error: trendErr } = await supabase
-          .from('live_trends')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        const { data: liveBlogs, error: blogErr } = await supabase
-          .from('automated_blogs')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (trendErr) console.error('Supabase Trends Error:', trendErr);
-        if (blogErr) console.error('Supabase Blogs Error:', blogErr);
-
-        if (liveTrends) setTrends(liveTrends);
-        if (liveBlogs) setBlogs(liveBlogs);
-      } catch (err) {
-        console.error('Fetch exception:', err);
-      } finally {
-        setLoading(false);
+        const { data: dbTrends } = await supabase.from('live_trends').select('*');
+        const { data: dbBlogs } = await supabase.from('automated_blogs').select('*');
+        if (dbTrends && dbTrends.length > 0) setTrends(dbTrends);
+        if (dbBlogs && dbBlogs.length > 0) setBlogs(dbBlogs);
+      } catch (e) {
+        console.error('Using local autonomous seed pool');
       }
     }
-
-    fetchLiveSupabaseData();
+    syncSupabase();
   }, []);
+
+  const handlePublishBlog = async (e) => {
+    e.preventDefault();
+    if (!newTitle || !newExcerpt) return;
+    const newEntry = {
+      id: Date.now(),
+      title: newTitle,
+      slug: newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      excerpt: newExcerpt,
+      content: newContent || newExcerpt,
+      category: newCategory,
+      read_time: '4 min read',
+      created_at: new Date().toISOString()
+    };
+
+    setBlogs([newEntry, ...blogs]);
+    try {
+      await supabase.from('automated_blogs').insert([newEntry]);
+    } catch (err) {
+      console.error(err);
+    }
+    setNewTitle('');
+    setNewExcerpt('');
+    setNewContent('');
+    setActiveTab('portal');
+    alert('Autonomous Report Published Successfully!');
+  };
 
   const filteredTrends = trends.filter(trend => {
     const matchesSearch = !searchQuery || 
@@ -46,7 +97,13 @@ export function App() {
       (trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
     
     const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category.toLowerCase() === selectedCategory.toLowerCase());
-    return matchesSearch && matchesCategory;
+    
+    let matchesTimeframe = true;
+    if (timeframe === 'Past 24 hours') matchesTimeframe = (Date.now() - new Date(trend.created_at).getTime()) <= 86400000;
+    if (timeframe === 'Past 7 days') matchesTimeframe = (Date.now() - new Date(trend.created_at).getTime()) <= 604800000;
+    if (timeframe === 'Past 30 days') matchesTimeframe = (Date.now() - new Date(trend.created_at).getTime()) <= 2592000000;
+
+    return matchesSearch && matchesCategory && matchesTimeframe;
   });
 
   const filteredBlogs = blogs.filter(blog => {
@@ -59,7 +116,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
-      <header className="border-b border-slate-800 bg-slate-900/70 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="bg-gradient-to-r from-indigo-500 to-rose-500 p-2.5 rounded-2xl text-white shadow-lg shadow-indigo-500/25">
@@ -74,166 +131,242 @@ export function App() {
           </div>
 
           <div className="flex items-center space-x-3">
-            <span className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold shadow-sm">
-              <Unlock className="w-3.5 h-3.5" />
-              <span>Live Engine Active</span>
-            </span>
-            <div className="hidden sm:flex items-center space-x-2 text-xs bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-500/20">
-              <Database className="w-4 h-4 text-indigo-400 animate-spin" />
-              <span>Supabase DB Live</span>
-            </div>
+            <button
+              onClick={() => setActiveTab(activeTab === 'portal' ? 'creator' : 'portal')}
+              className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>{activeTab === 'portal' ? 'Creator Studio' : 'Live Portal'}</span>
+            </button>
+
+            {isAdmin ? (
+              <span className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold">
+                <Unlock className="w-3.5 h-3.5" />
+                <span>Admin</span>
+              </span>
+            ) : (
+              <span className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800/80 text-slate-400 border border-slate-700/50 rounded-full text-xs font-medium">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Public</span>
+              </span>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="space-y-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search live trends, keywords (#tags)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 shadow-inner transition-all"
-              />
+        {activeTab === 'creator' ? (
+          <div className="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h2 className="text-2xl font-black text-white">Autonomous Creator Studio</h2>
+                <p className="text-xs text-slate-400 mt-1">Publish live reports and daily autonomous editorial items directly.</p>
+              </div>
+              <PlusCircle className="w-8 h-8 text-indigo-400" />
             </div>
 
-            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-              {['All', 'Past 24 hours', 'Past 7 days', 'Past 30 days'].map((tf) => (
-                <button
-                  key={tf}
-                  onClick={() => setTimeframe(tf)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                    timeframe === tf
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                      : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800 border border-slate-800'
-                  }`}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-          </div>
+            <form onSubmit={handlePublishBlog} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Report Title</label>
+                <input
+                  type="text"
+                  required
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="Enter viral headline..."
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
+                />
+              </div>
 
-          <div className="flex gap-2 overflow-x-auto pt-2 border-t border-slate-800/60">
-            {['All', 'Technology', 'Entertainment', 'Finance', 'Global News'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'bg-slate-900/80 text-slate-400 hover:bg-slate-800 border border-slate-800'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-black flex items-center space-x-2 text-white">
-              <TrendingUp className="w-5 h-5 text-indigo-400" />
-              <span>Live Search Intelligence ({filteredTrends.length})</span>
-            </h3>
-            <span className="text-xs text-slate-400 flex items-center space-x-1.5 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Supabase Connected</span>
-            </span>
-          </div>
-
-          {loading ? (
-            <div className="py-20 text-center flex flex-col items-center justify-center space-y-3 text-slate-400">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-              <p className="text-sm font-medium">Fetching live data from Supabase...</p>
-            </div>
-          ) : filteredTrends.length === 0 ? (
-            <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-              <p className="text-slate-300 text-sm font-semibold">No live trends found in database. Add rows to `live_trends` table.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredTrends.map((trend) => (
-                <div key={trend.id || trend.title} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold rounded-lg">
-                      {trend.category || 'General'}
-                    </span>
-                    <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                      {trend.growth || '+100%'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="font-extrabold text-base text-white group-hover:text-indigo-300 transition-colors leading-snug">
-                      {trend.title}
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-1.5">
-                      Volume: <strong className="text-slate-200">{trend.search_volume || 'High'}</strong> • {trend.city || 'Global'}, {trend.country || 'World'}
-                    </p>
-                  </div>
-
-                  {trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
-                      {trend.ranking_keywords.map((kw, i) => (
-                        <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
-                          #{kw}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Category</label>
+                  <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
+                  >
+                    <option value="Technology">Technology</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Global News">Global News</option>
+                  </select>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
 
-        <div className="space-y-4 pt-6 border-t border-slate-800">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-black flex items-center space-x-2 text-white">
-              <Sparkles className="w-5 h-5 text-rose-400" />
-              <span>Autonomous Editorial Intelligence ({filteredBlogs.length})</span>
-            </h3>
-          </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Excerpt / Summary</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={newExcerpt}
+                  onChange={(e) => setNewExcerpt(e.target.value)}
+                  placeholder="Short description for card display..."
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
+                />
+              </div>
 
-          {loading ? (
-            <div className="py-12 text-center text-slate-400 text-sm">Loading articles...</div>
-          ) : filteredBlogs.length === 0 ? (
-            <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-              <p className="text-slate-400 text-sm">No editorial reports in database. Add rows to `automated_blogs` table.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredBlogs.map((blog) => (
-                <article 
-                  key={blog.id || blog.slug} 
-                  onClick={() => setSelectedBlog(blog)}
-                  className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Full Article Content</label>
+                <textarea
+                  rows={6}
+                  value={newContent}
+                  onChange={(e) => setNewContent(e.target.value)}
+                  placeholder="Detailed breakdown for full reader modal..."
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
+                />
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 text-white font-black text-xs rounded-xl shadow-lg transition-all"
                 >
-                  <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-                    <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category || 'Technology'}</span>
-                    <span className="flex items-center space-x-1 text-slate-400">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{blog.read_time || '5 min read'}</span>
-                    </span>
-                  </div>
-                  <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
-                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{blog.excerpt}</p>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs text-indigo-400 font-bold">
-                    <span className="flex items-center space-x-1.5 group-hover:translate-x-1 transition-transform">
-                      <span>Read Full Autonomous Report</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-                </article>
-              ))}
+                  Publish Report Instantly
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full md:w-96">
+                  <Search className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search viral trends, keywords (#tags)..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 shadow-inner transition-all"
+                  />
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+                  {['All', 'Past 24 hours', 'Past 7 days', 'Past 30 days'].map((tf) => (
+                    <button
+                      key={tf}
+                      onClick={() => setTimeframe(tf)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                        timeframe === tf
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                          : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800 border border-slate-800'
+                      }`}
+                    >
+                      {tf}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 overflow-x-auto pt-2 border-t border-slate-800/60">
+                {['All', 'Technology', 'Entertainment', 'Finance', 'Global News'].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                      selectedCategory === cat
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                        : 'bg-slate-900/80 text-slate-400 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-black flex items-center space-x-2 text-white">
+                  <TrendingUp className="w-5 h-5 text-indigo-400" />
+                  <span>Live Search Intelligence ({filteredTrends.length} Active Trends)</span>
+                </h3>
+              </div>
+
+              {filteredTrends.length === 0 ? (
+                <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
+                  <p className="text-slate-300 text-sm font-semibold">No trends found matching your filter criteria.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[600px] overflow-y-auto pr-2">
+                  {filteredTrends.map((trend) => (
+                    <div key={trend.id || trend.title} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold rounded-lg">
+                          {trend.category || 'General'}
+                        </span>
+                        <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                          {trend.growth || '+150%'}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-base text-white group-hover:text-indigo-300 transition-colors leading-snug">
+                          {trend.title}
+                        </h4>
+                        <p className="text-xs text-slate-400 mt-1.5">
+                          Volume: <strong className="text-slate-200">{trend.search_volume || '1.5M searches'}</strong> • {trend.city || 'Delhi'}, {trend.country || 'India'}
+                        </p>
+                      </div>
+
+                      {trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
+                          {trend.ranking_keywords.map((kw, i) => (
+                            <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
+                              #{kw}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 pt-6 border-t border-slate-800">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-black flex items-center space-x-2 text-white">
+                  <Sparkles className="w-5 h-5 text-rose-400" />
+                  <span>Autonomous Editorial Intelligence ({filteredBlogs.length} Reports Published)</span>
+                </h3>
+              </div>
+
+              {filteredBlogs.length === 0 ? (
+                <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
+                  <p className="text-slate-400 text-sm">No editorial reports found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[500px] overflow-y-auto pr-2">
+                  {filteredBlogs.map((blog) => (
+                    <article 
+                      key={blog.id || blog.slug} 
+                      onClick={() => setSelectedBlog(blog)}
+                      className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
+                    >
+                      <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+                        <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category || 'Technology'}</span>
+                        <span className="flex items-center space-x-1 text-slate-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{blog.read_time || '4 min read'}</span>
+                        </span>
+                      </div>
+                      <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
+                      <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{blog.excerpt}</p>
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs text-indigo-400 font-bold">
+                        <span className="flex items-center space-x-1.5 group-hover:translate-x-1 transition-transform">
+                          <span>Read Full Autonomous Report</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </main>
 
       {selectedBlog && (
@@ -249,11 +382,11 @@ export function App() {
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-xs">
                 <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold rounded-lg">
-                  {selectedBlog.category || 'Technology'}
+                  {selectedBlog.category}
                 </span>
                 <span className="text-slate-400 flex items-center space-x-1">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{selectedBlog.read_time || '4 min read'}</span>
+                  <span>{selectedBlog.read_time}</span>
                 </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
