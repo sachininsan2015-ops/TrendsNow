@@ -8,7 +8,7 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [timeframe, setTimeframe] = useState('Past 24 hours');
+  const [timeframe, setTimeframe] = useState('All');
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -25,8 +25,8 @@ export function App() {
     async function loadData() {
       setLoading(true);
       try {
-        const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*');
-        const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*');
+        const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*').order('created_at', { ascending: false });
+        const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*').order('created_at', { ascending: false });
         
         if (trendsData) setTrends(trendsData);
         if (blogsData) setBlogs(blogsData);
@@ -42,7 +42,9 @@ export function App() {
 
   const filteredTrends = trends.filter(trend => {
     const matchesSearch = !searchQuery || 
-      (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase()));
+      (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (trend.ranking_keywords && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
+    
     const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category === selectedCategory);
     return matchesSearch && matchesCategory;
   });
@@ -90,7 +92,7 @@ export function App() {
               <Search className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search viral trends..."
+                placeholder="Search viral trends, keywords (#tags)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 shadow-inner transition-all"
@@ -98,7 +100,7 @@ export function App() {
             </div>
 
             <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-              {['Past 24 hours', 'Past 7 days', 'Past 30 days'].map((tf) => (
+              {['All', 'Past 24 hours', 'Past 7 days', 'Past 30 days'].map((tf) => (
                 <button
                   key={tf}
                   onClick={() => setTimeframe(tf)}
@@ -149,7 +151,7 @@ export function App() {
             </div>
           ) : filteredTrends.length === 0 ? (
             <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl space-y-2">
-              <p className="text-slate-300 text-sm font-semibold">No active trends found in database.</p>
+              <p className="text-slate-300 text-sm font-semibold">No active intelligence found matching criteria.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -172,6 +174,16 @@ export function App() {
                       Volume: <strong className="text-slate-200">{trend.search_volume || 'High'}</strong> • {trend.city || 'Global'}, {trend.country || 'World'}
                     </p>
                   </div>
+
+                  {trend.ranking_keywords && trend.ranking_keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
+                      {trend.ranking_keywords.map((kw, i) => (
+                        <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
+                          #{kw}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
