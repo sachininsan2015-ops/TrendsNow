@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, Flame, Clock, Unlock, Lock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle } from 'lucide-react';
+import { Search, TrendingUp, Flame, Clock, Unlock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle } from 'lucide-react';
 
 const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   const categories = ['Technology', 'Finance', 'Entertainment', 'Global News'];
@@ -36,7 +36,6 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
-  const [isAdmin, setIsAdmin] = useState(true);
   const [activeTab, setActiveTab] = useState('portal');
   const [selectedBlog, setSelectedBlog] = useState(null);
 
@@ -349,7 +348,7 @@ export function App() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="space-y-3">
+            <div className="scale-up space-y-3">
               <div className="flex items-center space-x-2 text-xs">
                 <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold rounded-lg">
                   {selectedBlog.category}
