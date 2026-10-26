@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, TrendingUp, Flame, Clock, Unlock, Lock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle } from 'lucide-react';
-import { supabase } from './supabaseClient';
 
 const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
   const categories = ['Technology', 'Finance', 'Entertainment', 'Global News'];
@@ -32,12 +31,12 @@ const ULTIMATE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
 }));
 
 export function App() {
-  const [trends, setTrends] = useState(ULTIMATE_MASTER_TRENDS);
+  const [trends] = useState(ULTIMATE_MASTER_TRENDS);
   const [blogs, setBlogs] = useState(ULTIMATE_MASTER_BLOGS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
   const [activeTab, setActiveTab] = useState('portal');
   const [selectedBlog, setSelectedBlog] = useState(null);
 
@@ -46,29 +45,7 @@ export function App() {
   const [newExcerpt, setNewExcerpt] = useState('');
   const [newContent, setNewContent] = useState('');
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === 'true' || localStorage.getItem('trendsnow_admin') === 'true') {
-      setIsAdmin(true);
-      localStorage.setItem('trendsnow_admin', 'true');
-    }
-  }, []);
-
-  useEffect(() => {
-    async function syncDatabase() {
-      try {
-        const { data: dbTrends } = await supabase.from('live_trends').select('*');
-        const { data: dbBlogs } = await supabase.from('automated_blogs').select('*');
-        if (dbTrends && dbTrends.length > 0) setTrends([...dbTrends, ...ULTIMATE_MASTER_TRENDS]);
-        if (dbBlogs && dbBlogs.length > 0) setBlogs([...dbBlogs, ...ULTIMATE_MASTER_BLOGS]);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    syncDatabase();
-  }, []);
-
-  const handlePublishBlog = async (e) => {
+  const handlePublishBlog = (e) => {
     e.preventDefault();
     if (!newTitle || !newExcerpt) return;
     const newEntry = {
@@ -83,11 +60,6 @@ export function App() {
     };
 
     setBlogs([newEntry, ...blogs]);
-    try {
-      await supabase.from('automated_blogs').insert([newEntry]);
-    } catch (err) {
-      console.error(err);
-    }
     setNewTitle('');
     setNewExcerpt('');
     setNewContent('');
@@ -146,17 +118,10 @@ export function App() {
               <span>{activeTab === 'portal' ? 'Creator Studio' : 'Live Portal'}</span>
             </button>
 
-            {isAdmin ? (
-              <span className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold">
-                <Unlock className="w-3.5 h-3.5" />
-                <span>Admin Unlocked</span>
-              </span>
-            ) : (
-              <span className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-slate-800/80 text-slate-400 border border-slate-700/50 rounded-full text-xs font-medium">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Public Mode</span>
-              </span>
-            )}
+            <span className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold">
+              <Unlock className="w-3.5 h-3.5" />
+              <span>Admin Unlocked</span>
+            </span>
           </div>
         </div>
       </header>
