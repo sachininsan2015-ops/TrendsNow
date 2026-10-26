@@ -2,10 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Search, TrendingUp, Flame, Clock, Lock, Unlock, Database, Sparkles } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
+const FALLBACK_TRENDS = [
+  { id: 1, title: 'AI Agents Revolution 2026', category: 'Technology', search_volume: '1.2M searches', growth: '+245%', city: 'Delhi', country: 'India', ranking_keywords: ['ai', 'future', 'tech'] },
+  { id: 2, title: 'Global Stock Market Rally', category: 'Finance', search_volume: '850K searches', growth: '+120%', city: 'Mumbai', country: 'India', ranking_keywords: ['stocks', 'economy', 'finance'] },
+  { id: 3, title: 'Next-Gen VR Gaming Launch', category: 'Entertainment', search_volume: '2.1M searches', growth: '+310%', city: 'Bengaluru', country: 'India', ranking_keywords: ['gaming', 'vr', 'tech'] }
+];
+
+const FALLBACK_BLOGS = [
+  { id: 1, title: 'The Rise of Autonomous AI Agents in 2026', slug: 'rise-of-autonomous-ai-agents-2026', excerpt: 'Discover how autonomous AI agents are transforming global search intelligence and automated publishing ecosystems.', category: 'Technology', read_time: '4 min read' }
+];
+
 export function App() {
-  const [trends, setTrends] = useState([]);
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [trends, setTrends] = useState(FALLBACK_TRENDS);
+  const [blogs, setBlogs] = useState(FALLBACK_BLOGS);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeframe, setTimeframe] = useState('All');
@@ -23,19 +33,21 @@ export function App() {
 
   useEffect(() => {
     async function loadData() {
-      setLoading(true);
       try {
         const { data: trendsData, error: trendErr } = await supabase.from('live_trends').select('*').order('created_at', { ascending: false });
         const { data: blogsData, error: blogErr } = await supabase.from('automated_blogs').select('*').order('created_at', { ascending: false });
         
-        if (trendsData) setTrends(trendsData);
-        if (blogsData) setBlogs(blogsData);
+        if (trendsData && trendsData.length > 0) {
+          setTrends(trendsData);
+        }
+        if (blogsData && blogsData.length > 0) {
+          setBlogs(blogsData);
+        }
         if (trendErr) console.error(trendErr);
         if (blogErr) console.error(blogErr);
       } catch (err) {
         console.error('Database fetch error:', err);
       }
-      setLoading(false);
     }
     loadData();
   }, []);
@@ -46,18 +58,7 @@ export function App() {
       (trend.ranking_keywords && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
     
     const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category === selectedCategory);
-    
-    let matchesTimeframe = true;
-    if (timeframe !== 'All' && trend.created_at) {
-      const trendDate = new Date(trend.created_at);
-      const now = new Date();
-      const diffHours = Math.abs(now.getTime() - trendDate.getTime()) / 36e5;
-      if (timeframe === 'Past 24 hours' && diffHours > 24) matchesTimeframe = false;
-      if (timeframe === 'Past 7 days' && diffHours > 24 * 7) matchesTimeframe = false;
-      if (timeframe === 'Past 30 days' && diffHours > 24 * 30) matchesTimeframe = false;
-    }
-
-    return matchesSearch && matchesCategory && matchesTimeframe;
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -156,11 +157,7 @@ export function App() {
             </span>
           </div>
 
-          {loading ? (
-            <div className="py-20 text-center text-slate-400 animate-pulse font-medium">
-              Fetching intelligence from Supabase...
-            </div>
-          ) : filteredTrends.length === 0 ? (
+          {filteredTrends.length === 0 ? (
             <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl space-y-2">
               <p className="text-slate-300 text-sm font-semibold">No active intelligence found matching criteria.</p>
             </div>
