@@ -12,7 +12,7 @@ const ULTIMATE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
     category: categories[i % 4],
     search_volume: `${(Math.random() * 9 + 0.5).toFixed(1)}M searches`,
     growth: `+${Math.floor(Math.random() * 600 + 50)}%`,
-    city: cities[i % cities.length],
+    city: cities[i % cities.length],// updated
     country: i % 6 === 5 ? 'Global' : 'India',
     ranking_keywords: [keywords[i % keywords.length], keywords[(i + 4) % keywords.length], 'trend2026', 'viral'],
     created_at: new Date(Date.now() - (i * 3600000 * 2.5)).toISOString()
