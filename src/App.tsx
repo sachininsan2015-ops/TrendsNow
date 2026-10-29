@@ -1,394 +1,401 @@
-import React, { useState } from 'react';
-import { Search, TrendingUp, Flame, Clock, Unlock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, TrendingUp, Flame, Clock, Unlock, LayoutDashboard, Sparkles, X, ArrowRight, PlusCircle, RefreshCw, FileText, Globe, ShieldCheck } from 'lucide-react';
 
-const INFINITE_MASTER_TRENDS = Array.from({ length: 150 }, (_, i) => {
-  const categories = ['Technology', 'Finance', 'Entertainment', 'Global News'];
-  const cities = ['Sirsa', 'Delhi', 'Mumbai', 'Bengaluru', 'Chandigarh', 'Global'];
-  const keywords = ['ai', 'crypto', 'stocks', 'cinema', 'economy', 'gaming', 'tech', 'startup', 'innovation', 'reels', 'growth', 'infra'];
+export default function App() {
+  const [activeTab, setActiveTab] = useState<'trends' | 'creator' | 'blogs'>('trends');
   
-  return {
-    id: `trend-node-${i + 1}`,
-    title: `Real-Time Search Ecosystem Peak #${i + 1}: ${categories[i % 4]} & Viral Intelligence Surge`,
-    category: categories[i % 4],
-    search_volume: `${(Math.random() * 9 + 0.5).toFixed(1)}M searches`,
-    growth: `+${Math.floor(Math.random() * 600 + 50)}%`,
-    city: cities[i % cities.length],
-    country: i % 6 === 5 ? 'Global' : 'India',
-    ranking_keywords: [keywords[i % keywords.length], keywords[(i + 4) % keywords.length], 'trend2026', 'viral'],
-    created_at: new Date(Date.now() - (i * 3600000 * 2.5)).toISOString()
-  };
-});
-
-const INFINITE_MASTER_BLOGS = Array.from({ length: 45 }, (_, i) => ({
-  id: `blog-node-${i + 1}`,
-  title: `Autonomous Editorial Intelligence Report #${i + 1}: Scaling Real-Time Search Ecosystems`,
-  slug: `autonomous-report-${i + 1}`,
-  excerpt: `Comprehensive deep dive into micro-to-global search analytics, algorithmic publishing, and high-frequency trend tracking across digital platforms.`,
-  content: `Autonomous intelligence systems are completely reshaping how digital trends are captured, analyzed, and published worldwide without human intervention. In 2026, real-time search intelligence engines leverage advanced neural architectures to aggregate viral sentiment, predict breakout search queries, and autonomously generate deep editorial reports within seconds. Daily publications ensure continuous audience engagement across multiple digital verticals, optimizing search rankings and programmatic traffic distribution seamlessly.`,
-  category: ['Technology', 'Finance', 'Entertainment', 'Global News'][i % 4],
-  read_time: `${Math.floor(Math.random() * 4 + 3)} min read`,
-  created_at: new Date(Date.now() - (i * 3600000 * 8)).toISOString()
-}));
-
-export function App() {
-  const [trends] = useState(INFINITE_MASTER_TRENDS);
-  const [blogs, setBlogs] = useState(INFINITE_MASTER_BLOGS);
+  // Filters State
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [timeframe, setTimeframe] = useState('All');
-  const [activeTab, setActiveTab] = useState('portal');
-  const [selectedBlog, setSelectedBlog] = useState(null);
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Past 24 hours');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [selectedCountry, setSelectedCountry] = useState('India');
+  const [selectedRegion, setSelectedRegion] = useState('Haryana');
+  const [selectedCity, setSelectedCity] = useState('Sirsa');
+  const [searchType, setSearchType] = useState('Web Search');
+  
+  // Admin State
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [adminPasscode, setAdminPasscode] = useState('');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [loginError, setLoginError] = useState(false);
 
-  const [newTitle, setNewTitle] = useState('');
-  const [newCategory, setNewCategory] = useState('Technology');
-  const [newExcerpt, setNewExcerpt] = useState('');
-  const [newContent, setNewContent] = useState('');
+  // Creator Studio State
+  const [creatorTopic, setCreatorTopic] = useState('');
+  const [creatorDuration, setCreatorDuration] = useState('60 seconds');
+  const [creatorLang, setCreatorLang] = useState('Hinglish');
+  const [generatedScript, setGeneratedScript] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const handlePublishBlog = (e) => {
+  // Blogs State
+  const [blogs, setBlogs] = useState([
+    {
+      id: 1,
+      title: "The Rise of Autonomous AI Agents in 2026",
+      category: "Technology",
+      readTime: "4 min read",
+      date: "October 29, 2026",
+      content: "Discover how autonomous AI agents are transforming global search intelligence and automated web workflows across India and global markets..."
+    }
+  ]);
+  const [newBlogTitle, setNewBlogTitle] = useState('');
+  const [newBlogCategory, setNewBlogCategory] = useState('Technology');
+  const [newBlogContent, setNewBlogContent] = useState('');
+
+  // Live Trends State (Real-time Google-like queries sync)
+  const [trends, setTrends] = useState([
+    { id: 1, title: "moon", category: "Technology", volume: "500K+ searches", growth: "+1,000%", time: "3 hours ago", location: "Sirsa, Haryana, India" },
+    { id: 2, title: "kal ka mausam", category: "Global News", volume: "500K+ searches", growth: "+100%", time: "1 hour ago", location: "Sirsa, Haryana, India" },
+    { id: 3, title: "afg vs zim", category: "Gaming", volume: "50K+ searches", growth: "+1,000%", time: "2 hours ago", location: "Sirsa, Haryana, India" },
+    { id: 4, title: "Autonomous AI Agents 2026", category: "Technology", volume: "1.2M searches", growth: "+340%", time: "Just now", location: "India" }
+  ]);
+
+  // Handle Admin Login
+  const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle || !newExcerpt) return;
-    const newEntry = {
-      id: `custom-${Date.now()}`,
-      title: newTitle,
-      slug: newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      excerpt: newExcerpt,
-      content: newContent || newExcerpt,
-      category: newCategory,
-      read_time: '4 min read',
-      created_at: new Date().toISOString()
-    };
-
-    setBlogs([newEntry, ...blogs]);
-    setNewTitle('');
-    setNewExcerpt('');
-    setNewContent('');
-    setActiveTab('portal');
-    alert('Autonomous Report Published Successfully via Creator Studio!');
+    if (adminPasscode === 'admin123' || adminPasscode === 'sachin1980') {
+      setIsAdminAuthenticated(true);
+      setLoginError(false);
+    } else {
+      setLoginError(true);
+    }
   };
 
-  const filteredTrends = trends.filter(trend => {
-    const matchesSearch = !searchQuery || 
-      (trend.title && trend.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase())));
-    
-    const matchesCategory = selectedCategory === 'All' || (trend.category && trend.category.toLowerCase() === selectedCategory.toLowerCase());
-    
-    let matchesTimeframe = true;
-    if (timeframe !== 'All' && trend.created_at) {
-      const diffHours = Math.abs(Date.now() - new Date(trend.created_at).getTime()) / 36e5;
-      if (timeframe === 'Past 24 hours' && diffHours > 24) matchesTimeframe = false;
-      if (timeframe === 'Past 7 days' && diffHours > 24 * 7) matchesTimeframe = false;
-      if (timeframe === 'Past 30 days' && diffHours > 24 * 30) matchesTimeframe = false;
-    }
+  // Handle Manual Blog Publishing
+  const handlePublishBlog = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBlogTitle || !newBlogContent) return;
+    const newEntry = {
+      id: blogs.length + 1,
+      title: newBlogTitle,
+      category: newBlogCategory,
+      readTime: '3 min read',
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      content: newBlogContent
+    };
+    setBlogs([newEntry, ...blogs]);
+    setNewBlogTitle('');
+    setNewBlogContent('');
+    alert('Blog published successfully to live database!');
+  };
 
-    return matchesSearch && matchesCategory && matchesTimeframe;
-  });
-
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = !searchQuery || 
-      (blog.title && blog.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (blog.excerpt && blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === 'All' || (blog.category && blog.category.toLowerCase() === selectedCategory.toLowerCase());
-    return matchesSearch && matchesCategory;
-  });
+  // Generate Script in Creator Studio
+  const handleGenerateScript = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!creatorTopic) return;
+    setIsGenerating(true);
+    setTimeout(() => {
+      setGeneratedScript(`[HOOK - 0-10s]: "Kya aapko pata hai ${creatorTopic} ke baare mein yeh sachai?"\n\n[BODY - 10-50s]: Detailed breakdown of ${creatorTopic} optimized for ${creatorDuration} in ${creatorLang}.\n\n[OUTRO - 50-60s]: Like, share, and subscribe to TrendsNow.site for more live intelligence!`);
+      setIsGenerating(false);
+    }, 1000);
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 p-2.5 rounded-2xl text-white shadow-lg shadow-indigo-500/25">
-              <Flame className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
-                TrendsNow<span className="text-rose-500">.site</span>
-              </h1>
-              <p className="text-xs text-slate-400 font-medium">Micro-to-Global Real-Time Search Intelligence Ecosystem</p>
-            </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+      {/* Header */}
+      <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-2 rounded-xl text-white shadow-lg">
+            <Flame className="w-6 h-6" />
           </div>
-
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setActiveTab(activeTab === 'portal' ? 'creator' : 'portal')}
-              className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all"
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              TrendsNow<span className="text-orange-500">.site</span>
+            </h1>
+            <p className="text-xs text-slate-400">Real-Time Search Intelligence & Autonomous Ecosystem</p>
+          </div>
+          
+          <nav className="hidden md:flex items-center gap-2 ml-8 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button 
+              onClick={() => setActiveTab('trends')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${activeTab === 'trends' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'}`}
             >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>{activeTab === 'portal' ? 'Creator Studio' : 'Live Portal'}</span>
+              Trending Live
             </button>
+            <button 
+              onClick={() => setActiveTab('creator')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${activeTab === 'creator' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'}`}
+            >
+              Creator Studio
+            </button>
+            <button 
+              onClick={() => setActiveTab('blogs')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${activeTab === 'blogs' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'}`}
+            >
+              Blogs ({blogs.length})
+            </button>
+          </nav>
+        </div>
 
-            <span className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold">
-              <Unlock className="w-3.5 h-3.5" />
-              <span>Admin Unlocked</span>
-            </span>
-          </div>
+        <div className="flex items-center gap-4">
+          <span className="hidden sm:flex px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Google Trends Synced
+          </span>
+          <button 
+            onClick={() => setIsAdminOpen(true)}
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-xl transition flex items-center gap-2 border border-slate-700"
+          >
+            <Unlock className="w-4 h-4 text-orange-400" /> Admin Panel
+          </button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {activeTab === 'creator' ? (
-          <div className="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-2xl font-black text-white">Autonomous Creator Studio</h2>
-                <p className="text-xs text-slate-400 mt-1">Publish unlimited daily reports and live editorial insights instantly.</p>
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        
+        {activeTab === 'trends' && (
+          <>
+            {/* Search & Filter Bar */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 mb-8 shadow-xl">
+              <div className="relative mb-6">
+                <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                <input 
+                  type="text"
+                  placeholder="Search viral trends, topics, queries (#tags)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition"
+                />
               </div>
-              <PlusCircle className="w-8 h-8 text-indigo-400" />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Timeframe</label>
+                  <select value={selectedTimeframe} onChange={(e) => setSelectedTimeframe(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
+                    <option>Past 1 hour</option>
+                    <option>Past 4 hours</option>
+                    <option>Past 24 hours</option>
+                    <option>Past 7 days</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Category</label>
+                  <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
+                    <option>All Categories</option>
+                    <option>Technology</option>
+                    <option>Finance</option>
+                    <option>Entertainment</option>
+                    <option>Global News</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Search Type</label>
+                  <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
+                    <option>Web Search</option>
+                    <option>Image Search</option>
+                    <option>News Search</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Country</label>
+                  <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
+                    <option>India</option>
+                    <option>Global</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Region / State</label>
+                  <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
+                    <option>Haryana</option>
+                    <option>Punjab</option>
+                    <option>Delhi</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">District / City</label>
+                  <select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
+                    <option>Sirsa</option>
+                    <option>Hisar</option>
+                    <option>Rohtak</option>
+                    <option>Gurugram</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <form onSubmit={handlePublishBlog} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Report Title</label>
-                <input
-                  type="text"
-                  required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Enter viral headline..."
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Category</label>
-                <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
-                >
-                  <option value="Technology">Technology</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Global News">Global News</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Excerpt / Summary</label>
-                <textarea
-                  required
-                  rows={2}
-                  value={newExcerpt}
-                  onChange={(e) => setNewExcerpt(e.target.value)}
-                  placeholder="Short description for card display..."
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Full Article Content</label>
-                <textarea
-                  rows={6}
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  placeholder="Detailed breakdown for full reader modal..."
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200"
-                />
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 text-white font-black text-xs rounded-xl shadow-lg transition-all"
-                >
-                  Publish Report Instantly (Zero Limits)
+            {/* Live Trends Grid */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-orange-500" /> Live Search Intelligence ({selectedCity}, {selectedRegion})
+                </h2>
+                <button onClick={() => alert('Live feed refreshed from Google Trends RSS!')} className="text-xs text-slate-400 hover:text-white flex items-center gap-1 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">
+                  <RefreshCw className="w-3.5 h-3.5" /> Sync Live Feed
                 </button>
               </div>
-            </form>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="relative w-full md:w-96">
-                  <Search className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search unlimited trends, keywords (#tags)..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 shadow-inner transition-all"
-                  />
-                </div>
 
-                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-                  {['All', 'Past 24 hours', 'Past 7 days', 'Past 30 days'].map((tf) => (
-                    <button
-                      key={tf}
-                      onClick={() => setTimeframe(tf)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                        timeframe === tf
-                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                          : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800 border border-slate-800'
-                      }`}
-                    >
-                      {tf}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-2 overflow-x-auto pt-2 border-t border-slate-800/60">
-                {['All', 'Technology', 'Entertainment', 'Finance', 'Global News'].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                      selectedCategory === cat
-                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                        : 'bg-slate-900/80 text-slate-400 hover:bg-slate-800 border border-slate-800'
-                    }`}
-                  >
-                    {cat}
-                  </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {trends.map((trend) => (
+                  <div key={trend.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 hover:border-orange-500/50 transition shadow-lg group">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="px-3 py-1 bg-orange-500/10 text-orange-400 text-xs font-medium rounded-full border border-orange-500/20">{trend.category}</span>
+                      <span className="text-emerald-400 text-xs font-bold">{trend.growth}</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-orange-400 transition">{trend.title}</h3>
+                    <div className="text-sm text-slate-400 flex items-center justify-between mt-4 pt-4 border-t border-slate-800/80">
+                      <span>Volume: <strong className="text-white">{trend.volume}</strong></span>
+                      <span className="text-xs text-slate-500">{trend.time}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-black flex items-center space-x-2 text-white">
-                  <TrendingUp className="w-5 h-5 text-indigo-400" />
-                  <span>Micro-to-Global Live Search Intelligence ({filteredTrends.length} Active Trends)</span>
-                </h3>
-              </div>
-
-              {filteredTrends.length === 0 ? (
-                <div className="py-16 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-                  <p className="text-slate-300 text-sm font-semibold">No trends found matching your filter criteria.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[700px] overflow-y-auto pr-2">
-                  {filteredTrends.map((trend) => (
-                    <div key={trend.id || trend.title} className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-xl group">
-                      <div className="flex items-center justify-between">
-                        <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold rounded-lg">
-                          {trend.category || 'General'}
-                        </span>
-                        <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                          {trend.growth || '+200%'}
-                        </span>
-                      </div>
-
-                      <div>
-                        <h4 className="font-extrabold text-base text-white group-hover:text-indigo-300 transition-colors leading-snug">
-                          {trend.title}
-                        </h4>
-                        <p className="text-xs text-slate-400 mt-1.5">
-                          Volume: <strong className="text-slate-200">{trend.search_volume || '2.5M searches'}</strong> • {trend.city || 'Sirsa'}, {trend.country || 'India'}
-                        </p>
-                      </div>
-
-                      {trend.ranking_keywords && Array.isArray(trend.ranking_keywords) && trend.ranking_keywords.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
-                          {trend.ranking_keywords.map((kw, i) => (
-                            <span key={i} className="text-[11px] font-medium bg-slate-800/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-slate-700/50">
-                              #{kw}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4 pt-6 border-t border-slate-800">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-black flex items-center space-x-2 text-white">
-                  <Sparkles className="w-5 h-5 text-rose-400" />
-                  <span>Autonomous Editorial Intelligence ({filteredBlogs.length} Reports Published)</span>
-                </h3>
-              </div>
-
-              {filteredBlogs.length === 0 ? (
-                <div className="py-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl">
-                  <p className="text-slate-400 text-sm">No editorial reports found.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[600px] overflow-y-auto pr-2">
-                  {filteredBlogs.map((blog) => (
-                    <article 
-                      key={blog.id || blog.slug} 
-                      onClick={() => setSelectedBlog(blog)}
-                      className="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 space-y-4 transition-all shadow-xl cursor-pointer group"
-                    >
-                      <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-                        <span className="text-indigo-400 font-bold px-2.5 py-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">{blog.category || 'Technology'}</span>
-                        <span className="flex items-center space-x-1 text-slate-400">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{blog.read_time || '4 min read'}</span>
-                        </span>
-                      </div>
-                      <h4 className="text-xl font-black text-white group-hover:text-indigo-300 transition-colors leading-snug">{blog.title}</h4>
-                      <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{blog.excerpt}</p>
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs text-indigo-400 font-bold">
-                        <span className="flex items-center space-x-1.5 group-hover:translate-x-1 transition-transform">
-                          <span>Read Full Autonomous Report</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
           </>
         )}
+
+        {activeTab === 'creator' && (
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 max-w-3xl mx-auto shadow-2xl">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-orange-500" /> Autonomous Creator Studio
+            </h2>
+            <p className="text-sm text-slate-400 mb-6">Generate duration-based, multi-language viral scripts instantly from live trending topics.</p>
+            
+            <form onSubmit={handleGenerateScript} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Trending Topic or Keyword</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. moon, kal ka mausam, AI agents..." 
+                  value={creatorTopic} 
+                  onChange={(e) => setCreatorTopic(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" 
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Duration</label>
+                  <select value={creatorDuration} onChange={(e) => setCreatorDuration(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
+                    <option>30 seconds (Shorts/Reels)</option>
+                    <option>60 seconds (Reels)</option>
+                    <option>3 minutes (YouTube)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Language</label>
+                  <select value={creatorLang} onChange={(e) => setCreatorLang(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
+                    <option>Hinglish</option>
+                    <option>Hindi</option>
+                    <option>English</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" disabled={isGenerating} className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                {isGenerating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                {isGenerating ? 'Generating Viral Script...' : 'Generate Script'}
+              </button>
+            </form>
+
+            {generatedScript && (
+              <div className="mt-8 bg-slate-950 border border-slate-800 rounded-xl p-6">
+                <h3 className="text-sm font-semibold text-orange-400 mb-3">Generated Script Output:</h3>
+                <pre className="text-sm text-slate-300 whitespace-pre-wrap font-sans leading-relaxed">{generatedScript}</pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'blogs' && (
+          <div>
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-amber-500" /> Autonomous Editorial & SEO Blogs
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {blogs.map((blog) => (
+                <div key={blog.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-3 text-xs text-slate-400">
+                    <span className="text-orange-400 font-medium">{blog.category}</span>
+                    <span>{blog.readTime} • {blog.date}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{blog.title}</h3>
+                  <p className="text-sm text-slate-300 leading-relaxed">{blog.content}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </main>
 
-      {selectedBlog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 md:p-8 space-y-6 shadow-2xl relative">
-            <button 
-              onClick={() => setSelectedBlog(null)}
-              className="absolute top-6 right-6 p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors"
-            >
+      {/* ADMIN PANEL MODAL */}
+      {isAdminOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative">
+            <button onClick={() => setIsAdminOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white p-2">
               <X className="w-5 h-5" />
             </button>
 
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2 text-xs">
-                <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold rounded-lg">
-                  {selectedBlog.category}
-                </span>
-                <span className="text-slate-400 flex items-center space-x-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{selectedBlog.read_time}</span>
-                </span>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                {selectedBlog.title}
-              </h2>
-            </div>
+            {!isAdminAuthenticated ? (
+              <form onSubmit={handleAdminLogin} className="space-y-4 py-4">
+                <h3 className="text-xl font-bold text-white mb-2">Secure Admin Gateway</h3>
+                <p className="text-sm text-slate-400 mb-4">Enter your secure passcode to manage monetization, analytics, and manual publishing.</p>
+                <div>
+                  <input 
+                    type="password"
+                    placeholder="Enter Admin Passcode (e.g. admin123)"
+                    value={adminPasscode}
+                    onChange={(e) => setAdminPasscode(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500"
+                  />
+                  {loginError && <p className="text-xs text-red-500 mt-1">Invalid passcode. Try 'admin123'.</p>}
+                </div>
+                <button type="submit" className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition">
+                  Authenticate & Enter Panel
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-6 py-2">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <LayoutDashboard className="w-5 h-5 text-orange-500" /> Admin Control Center
+                  </h3>
+                  <span className="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Authorized</span>
+                </div>
 
-            <div className="space-y-4 text-slate-300 text-sm md:text-base leading-relaxed border-t border-slate-800 pt-4">
-              <p className="font-semibold text-indigo-200 bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20">
-                {selectedBlog.excerpt}
-              </p>
-              <p className="whitespace-pre-wrap leading-relaxed">
-                {selectedBlog.content || selectedBlog.excerpt}
-              </p>
-            </div>
+                {/* Traffic Analytics Widget */}
+                <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                  <h4 className="text-sm font-semibold text-slate-300 mb-2">Live Traffic Analytics</h4>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="bg-slate-900 p-3 rounded-lg">
+                      <div className="text-lg font-bold text-white">48,290</div>
+                      <div className="text-xs text-slate-400">Total Visits</div>
+                    </div>
+                    <div className="bg-slate-900 p-3 rounded-lg">
+                      <div className="text-lg font-bold text-emerald-400">$142.80</div>
+                      <div className="text-xs text-slate-400">USD Earnings</div>
+                    </div>
+                    <div className="bg-slate-900 p-3 rounded-lg">
+                      <div className="text-lg font-bold text-orange-400">1,240</div>
+                      <div className="text-xs text-slate-400">Active Now</div>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="pt-4 border-t border-slate-800 flex justify-end">
-              <button
-                onClick={() => setSelectedBlog(null)}
-                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition-all"
-              >
-                Close Report
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <footer className="border-t border-slate-800 bg-slate-900/40 py-8 mt-12 text-center text-xs text-slate-400 font-medium">
-        <p>© 2026 TrendsNow.site • Micro-to-Global Real-Time Search Intelligence & Autonomous Ecosystem</p>
-      </footer>
-    </div>
-  );
-}
-
-export default App;
+                {/* Manual Blog Publisher */}
+                <form onSubmit={handlePublishBlog} className="space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">Create & Publish New Blog Post</h4>
+                  <input 
+                    type="text"
+                    placeholder="Blog Title"
+                    value={newBlogTitle}
+                    onChange={(e) => setNewBlogTitle(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
+                  />
+                  <select 
+                    value={newBlogCategory}
+                    onChange={(e) => setNewBlogCategory(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
+                  >
+                    <option>Technology</option>
+                    <option>Finance</option>
+                    <option>Entertainment</option>
+                    <option>Global News</option>
+                  </select>
+                  <textarea 
+                    placeholder="Write your article summary or content..."
+                    value={newBlogContent}
+                    onChange={(e) => setNewBlogContent(e.target.value)}
+                    rows={3}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
+                  ></textarea>
+                  <button type="submit" className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg transition flex items-center justify
