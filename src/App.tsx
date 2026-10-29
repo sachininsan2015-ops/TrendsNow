@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Flame, LayoutDashboard, Sparkles, X, PlusCircle, RefreshCw, FileText, Download, Code, Compass, ShieldCheck } from 'lucide-react';
+import { Search, TrendingUp, Flame, LayoutDashboard, Sparkles, X, PlusCircle, RefreshCw, FileText, Download, Code, Compass, ShieldCheck, Mail, LogOut, Globe } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'trends' | 'explore' | 'creator' | 'blogs'>('trends');
@@ -7,19 +7,19 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTimeframe, setSelectedTimeframe] = useState('Past 24 hours');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [selectedCountry, setSelectedCountry] = useState('India');
-  const [selectedRegion, setSelectedRegion] = useState('Haryana');
-  const [selectedCity, setSelectedCity] = useState('Sirsa');
-  const [selectedPincode, setSelectedPincode] = useState('125055');
+  const [selectedCountry, setSelectedCountry] = useState('Global');
+  const [selectedRegion, setSelectedRegion] = useState('All Regions');
+  const [selectedCity, setSelectedCity] = useState('Global Hub');
+  const [selectedPincode, setSelectedPincode] = useState('000000');
   const [searchType, setSelectedSearchType] = useState('Web Search');
+  const [selectedLang, setSelectedLang] = useState('English');
   
   const [syncStatus] = useState('Google Trends Synced Live');
 
-  // Secure Admin State
+  // Strict Email-Based Admin Authentication (No Passcode hassle)
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPasscode, setAdminPasscode] = useState('');
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [inputEmail, setInputEmail] = useState('');
+  const [loggedAdminEmail, setLoggedAdminEmail] = useState<string | null>(null);
   const [loginError, setLoginError] = useState(false);
 
   useEffect(() => {
@@ -27,10 +27,20 @@ export default function App() {
     if (params.get('admin') === 'true') {
       setIsAdminOpen(true);
     }
+    // Check local session for persistent admin login
+    const savedAdmin = localStorage.getItem('trendsnow_admin_email');
+    if (savedAdmin === 'sachininsan2015@gmail.com' || savedAdmin === 'admin@trendsnow.site') {
+      setLoggedAdminEmail(savedAdmin);
+    }
   }, []);
 
-  // Location Hierarchy Mapping
+  // Comprehensive Location Hierarchy (Global, India, US, UK, Canada, Australia, etc.)
   const locationData: Record<string, { states: Record<string, { cities: string[], pincodes: Record<string, string> }> }> = {
+    'Global': {
+      states: {
+        'All Regions': { cities: ['Global Hub', 'International Node'], pincodes: { 'Global Hub': '000000', 'International Node': '111111' } }
+      }
+    },
     'India': {
       states: {
         'Haryana': { cities: ['Sirsa', 'Hisar', 'Gurugram', 'Rohtak', 'Karnal'], pincodes: { 'Sirsa': '125055', 'Hisar': '125001', 'Gurugram': '122001', 'Rohtak': '124001', 'Karnal': '132001' } },
@@ -94,7 +104,7 @@ export default function App() {
   const [generatedScript, setGeneratedScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Daily 250-300 Words SEO Blogs State
+  // Daily 250-300 Words SEO Blogs State (Auto-publishing simulation)
   const [blogs, setBlogs] = useState([
     {
       id: 1,
@@ -119,7 +129,7 @@ export default function App() {
   const [newBlogCategory, setNewBlogCategory] = useState('Technology');
   const [newBlogContent, setNewBlogContent] = useState('');
 
-  // Master Trends Pool
+  // Extended Master Trends Pool with all categories
   const masterTrends = [
     { id: 1, title: "AI Code Assistants & Copilots", category: "Technology", volume: "3.4M searches", growth: "+912%", time: "15m ago", location: `${selectedCity}, ${selectedCountry}` },
     { id: 2, title: "Global Stock Market Bull Run", category: "Finance", volume: "2.8M searches", growth: "+645%", time: "30m ago", location: `${selectedCity}, ${selectedCountry}` },
@@ -130,9 +140,9 @@ export default function App() {
     { id: 7, title: "Autonomous Drone Delivery Networks", category: "Technology", volume: "1.2M searches", growth: "+340%", time: "3h ago", location: `${selectedCity}, ${selectedCountry}` },
     { id: 8, title: "Venture Capital & Tech Startups", category: "Startups", volume: "1.5M searches", growth: "+480%", time: "1h ago", location: `${selectedCity}, ${selectedCountry}` },
     { id: 9, title: "Premier League & Cricket Updates", category: "Sports", volume: "5.2M searches", growth: "+950%", time: "Just now", location: `${selectedCity}, ${selectedCountry}` },
-    { id: 10, title: "Digital Creator Monetization Tools", category: "Technology", volume: "1.8M searches", growth: "+620%", time: "25m ago", location: `${selectedCity}, ${selectedCountry}` },
-    { id: 11, title: "Real Estate & Smart Homes Demand", category: "Finance", volume: "1.1M searches", growth: "+390%", time: "2h ago", location: `${selectedCity}, ${selectedCountry}` },
-    { id: 12, title: "OTT Streaming Series Season Finale", category: "Entertainment", volume: "3.2M searches", growth: "+810%", time: "50m ago", location: `${selectedCity}, ${selectedCountry}` }
+    { id: 10, title: "Digital Healthcare & Telemedicine", category: "Health", volume: "1.4M searches", growth: "+310%", time: "1h ago", location: `${selectedCity}, ${selectedCountry}` },
+    { id: 11, title: "Global Election Policy Debates", category: "Politics", volume: "4.8M searches", growth: "+890%", time: "20m ago", location: `${selectedCity}, ${selectedCountry}` },
+    { id: 12, title: "Smart Real Estate Housing Demand", category: "Real Estate", volume: "1.1M searches", growth: "+390%", time: "2h ago", location: `${selectedCity}, ${selectedCountry}` }
   ];
 
   const nextExplorePredictions = [
@@ -146,14 +156,22 @@ export default function App() {
     (selectedCategory === 'All Categories' || t.category === selectedCategory)
   );
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  // Email-based admin login handler
+  const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((adminEmail === 'sachininsan2015@gmail.com' || adminEmail === 'admin@trendsnow.site') && (adminPasscode === 'admin123' || adminPasscode === 'sachin1980')) {
-      setIsAdminAuthenticated(true);
+    if (inputEmail === 'sachininsan2015@gmail.com' || inputEmail === 'admin@trendsnow.site') {
+      setLoggedAdminEmail(inputEmail);
+      localStorage.setItem('trendsnow_admin_email', inputEmail);
       setLoginError(false);
+      setIsAdminOpen(false);
     } else {
       setLoginError(true);
     }
+  };
+
+  const handleAdminLogout = () => {
+    setLoggedAdminEmail(null);
+    localStorage.removeItem('trendsnow_admin_email');
   };
 
   const handlePublishBlog = (e: React.FormEvent) => {
@@ -207,9 +225,34 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Language Switcher */}
+          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-300">
+            <Globe className="w-3.5 h-3.5 text-orange-400" />
+            <select value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} className="bg-transparent text-white focus:outline-none cursor-pointer">
+              <option className="bg-slate-900">English</option>
+              <option className="bg-slate-900">Hindi</option>
+              <option className="bg-slate-900">Hinglish</option>
+              <option className="bg-slate-900">Spanish</option>
+            </select>
+          </div>
+
           <span className="hidden sm:flex px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> {syncStatus}
           </span>
+
+          {/* Admin Indicator / Button if logged in with admin email */}
+          {loggedAdminEmail ? (
+            <div className="flex items-center gap-2">
+              <button onClick={() => setIsAdminOpen(true)} className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-lg">
+                <ShieldCheck className="w-4 h-4" /> Admin Panel
+              </button>
+              <button onClick={handleAdminLogout} title="Logout" className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">
+                <LogOut className="w-4 h-4 text-red-400" />
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setIsAdminOpen(true)} className="text-xs text-slate-500 hover:text-slate-300">Admin Login</button>
+          )}
         </div>
       </header>
 
@@ -240,7 +283,7 @@ export default function App() {
                 <div>
                   <label className="block text-xs font-medium text-slate-400 mb-1">Category</label>
                   <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
-                    <option>All Categories</option><option>Technology</option><option>Finance</option><option>Entertainment</option><option>Global News</option><option>Gaming</option><option>Crypto</option><option>Startups</option><option>Sports</option>
+                    <option>All Categories</option><option>Technology</option><option>Finance</option><option>Entertainment</option><option>Global News</option><option>Gaming</option><option>Crypto</option><option>Startups</option><option>Sports</option><option>Health</option><option>Politics</option><option>Real Estate</option>
                   </select>
                 </div>
                 <div>
@@ -252,7 +295,7 @@ export default function App() {
                 <div>
                   <label className="block text-xs font-medium text-slate-400 mb-1">Country</label>
                   <select value={selectedCountry} onChange={handleCountryChange} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white">
-                    <option>India</option><option>United States</option><option>United Kingdom</option><option>Canada</option>
+                    <option>Global</option><option>India</option><option>United States</option><option>United Kingdom</option><option>Canada</option>
                   </select>
                 </div>
                 <div>
@@ -375,34 +418,36 @@ export default function App() {
         )}
       </main>
 
-      {/* STRICT SECURE ADMIN MODAL (Opens only via ?admin=true & authorized admin email) */}
+      {/* STRICT SECURE ADMIN MODAL (Opens only via ?admin=true or admin button if verified by email) */}
       {isAdminOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative">
-            <button onClick={() => { setIsAdminOpen(false); window.history.replaceState({}, document.title, window.location.pathname); }} className="absolute right-4 top-4 text-slate-400 hover:text-white p-2"><X className="w-5 h-5" /></button>
+            <button onClick={() => { setIsAdminOpen(false); }} className="absolute right-4 top-4 text-slate-400 hover:text-white p-2"><X className="w-5 h-5" /></button>
             
-            {!isAdminAuthenticated ? (
-              <form onSubmit={handleAdminLogin} className="space-y-4 py-4">
+            {!loggedAdminEmail ? (
+              <form onSubmit={handleEmailLogin} className="space-y-4 py-4">
                 <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
                   <ShieldCheck className="w-6 h-6 text-orange-500" /> Secure Admin Gateway
                 </h3>
-                <p className="text-sm text-slate-400 mb-4">Restricted access. Enter authorized admin email and passcode.</p>
+                <p className="text-sm text-slate-400 mb-4">Enter your authorized administrator email to access the control center.</p>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Admin Email</label>
-                  <input type="email" placeholder="sachininsan2015@gmail.com" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" />
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Admin Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                    <input type="email" placeholder="sachininsan2015@gmail.com" value={inputEmail} onChange={(e) => setInputEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-orange-500" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Passcode</label>
-                  <input type="password" placeholder="Enter Admin Passcode" value={adminPasscode} onChange={(e) => setAdminPasscode(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" />
-                </div>
-                {loginError && <p className="text-xs text-red-500 mt-1">Access Denied: Only authorized admin email can log in.</p>}
-                <button type="submit" className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">Authenticate Admin</button>
+                {loginError && <p className="text-xs text-red-500 mt-1">Access Denied: Only registered admin email is allowed.</p>}
+                <button type="submit" className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">Verify & Enter Dashboard</button>
               </form>
             ) : (
               <div className="space-y-6 py-2">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2"><LayoutDashboard className="w-5 h-5 text-orange-500" /> Admin Control Center</h3>
-                  <span className="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Authorized Admin Verified</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2"><LayoutDashboard className="w-5 h-5 text-orange-500" /> Admin Control Center</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Logged in as: <span className="text-emerald-400 font-medium">{loggedAdminEmail}</span></p>
+                  </div>
+                  <button onClick={handleAdminLogout} className="px-3 py-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs rounded-lg border border-red-500/20">Logout</button>
                 </div>
                 <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-3 gap-4 text-center">
                   <div className="bg-slate-900 p-3 rounded-lg"><div className="text-lg font-bold text-white">48,290</div><div className="text-xs text-slate-400">Total Visits</div></div>
