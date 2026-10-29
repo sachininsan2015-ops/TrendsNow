@@ -1,19 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Flame, LayoutDashboard, Sparkles, X, PlusCircle, Globe, BookOpen, TrendingUp, Compass, ShieldCheck, Mail, LogOut } from 'lucide-react';
 
-interface Blog {
-  id: number;
-  title: string;
-  category: string;
-  readTime: string;
-  date: string;
-  seoKeywords: string;
-  content: string;
-}
-
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'blogs' | 'trends' | 'explore' | 'creator'>('blogs');
-  
+  const [activeTab, setActiveTab] = useState('blogs');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [selectedLang, setSelectedLang] = useState('English');
@@ -35,55 +24,31 @@ export default function App() {
   }, []);
 
   const [creatorTopic, setCreatorTopic] = useState('');
-  const [creatorDuration] = useState('60 seconds');
-  const [creatorLang] = useState('Hinglish');
   const [generatedScript, setGeneratedScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const uniqueBlogTopics = [
-    { title: "The Future of Autonomous AI Agents in 2026", cat: "Technology", kw: "AI agents 2026, automation, workflows" },
-    { title: "Algorithmic Stock Trading and Market Rallies", cat: "Finance", kw: "fintech, stocks, algorithmic trading" },
-    { title: "Box Office Surges: The Rise of Cinematic Universes", cat: "Entertainment", kw: "movies, box office, streaming" },
-    { title: "Global Renewable Energy Grids: 2026 Roadmap", cat: "Global News", kw: "green energy, sustainability, climate" },
-    { title: "Esports Expansion Across Tier-2 Cities", cat: "Gaming", kw: "esports, gaming tournaments, mobile gaming" },
-    { title: "Web3 Liquidity and Decentralized Finance", cat: "Crypto", kw: "crypto, web3, blockchain" },
-    { title: "Venture Capital Funding Trends for Startups", cat: "Startups", kw: "startups, VC funding, entrepreneurship" },
-    { title: "Premier League & Cricket Digital Broadcasts", cat: "Sports", kw: "sports streaming, cricket, football" },
-    { title: "Telemedicine and AI Diagnostics in Healthcare", cat: "Health", kw: "digital health, telemedicine, AI diagnostics" },
-    { title: "Global Policy Shifts and Digital Governance", cat: "Politics", kw: "digital governance, elections, policy" },
-    { title: "Smart Real Estate Investment Strategies", cat: "Real Estate", kw: "smart homes, real estate, property tech" },
-    { title: "Cybersecurity Frameworks for Enterprise Data", cat: "Technology", kw: "cybersecurity, cloud data, privacy" },
-    { title: "Personal Finance Apps Revolutionizing Savings", cat: "Finance", kw: "personal finance, budgeting apps, wealth" },
-    { title: "Indie Game Developers Gaining Global Stardom", cat: "Gaming", kw: "indie games, game development, Steam" },
-    { title: "Electric Vehicle Battery Breakthroughs", cat: "Technology", kw: "EV batteries, clean tech, transportation" },
-    { title: "Digital Creator Economy Monetization Masterclass", cat: "Startups", kw: "creator economy, monetization, reels" },
-    { title: "Mental Health Tech and Wellness Platforms", cat: "Health", kw: "mental health, wellness apps, meditation" },
-    { title: "Space Tech Commercialization and Satellites", cat: "Global News", kw: "space tech, satellites, commercial space" },
-    { title: "Next-Gen Augmented Reality Headsets", cat: "Technology", kw: "AR glasses, spatial computing, headsets" },
-    { title: "Decentralized Autonomous Organizations (DAOs)", cat: "Crypto", kw: "DAOs, governance, crypto communities" },
-    { title: "Global Tourism and Smart Travel Tech", cat: "Entertainment", kw: "smart travel, tourism apps, booking" },
-    { title: "E-Commerce Logistics and Drone Shipping", cat: "Technology", kw: "drone delivery, logistics, e-commerce" },
-    { title: "Financial Literacy Programs for Youth", cat: "Finance", kw: "financial literacy, investing basics, youth" },
-    { title: "Cinematic Storytelling in Modern Video Games", cat: "Gaming", kw: "video game narratives, graphics, engine" },
-    { title: "Artificial Intelligence in Legal Tech", cat: "Technology", kw: "legal tech, AI contract review, automation" },
-    { title: "Sustainable Fashion and Eco-Friendly Fabrics", cat: "Startups", kw: "sustainable fashion, eco-friendly, apparel" },
-    { title: "Global Semiconductor Supply Chain Resilience", cat: "Global News", kw: "semiconductors, microchips, manufacturing" },
-    { title: "Podcasting Networks and Audio Monetization", cat: "Entertainment", kw: "podcasts, audio streaming, sponsors" },
-    { title: "Cloud Native Architecture Best Practices", cat: "Technology", kw: "cloud computing, Kubernetes, DevOps" },
-    { title: "The Evolution of Remote Work Culture", cat: "Global News", kw: "remote work, digital nomad, productivity" }
+  const initialBlogs = [
+    {
+      id: 1,
+      title: "The Future of Autonomous AI Agents in 2026",
+      category: "Technology",
+      readTime: "4 min read",
+      date: "October 30, 2026",
+      seoKeywords: "AI agents 2026, automation, workflows",
+      content: "The technological landscape in 2026 is being aggressively redefined by autonomous artificial intelligence agents. Unlike traditional software that requires constant human prompting, modern AI agents operate proactively, analyzing live search intelligence, predicting consumer behavior, and automating complex web workflows across global markets."
+    },
+    {
+      id: 2,
+      title: "Algorithmic Stock Trading and Market Rallies",
+      category: "Finance",
+      readTime: "5 min read",
+      date: "October 29, 2026",
+      seoKeywords: "fintech, stocks, algorithmic trading",
+      content: "Financial markets across the globe are experiencing unprecedented volatility driven by algorithmic trading and real-time sentiment analysis. In 2026, retail and institutional investors alike rely heavily on automated financial tracking tools to gauge market momentum."
+    }
   ];
 
-  const initialBlogs: Blog[] = uniqueBlogTopics.map((item, i) => ({
-    id: i + 1,
-    title: item.title,
-    category: item.cat,
-    readTime: `${Math.floor(Math.random() * 3 + 3)} min read`,
-    date: `October ${30 - (i % 25)}, 2026`,
-    seoKeywords: item.kw,
-    content: `Welcome to our in-depth editorial coverage on ${item.title.toLowerCase()}. In today's fast-paced digital era of 2026, staying informed with verified insights and expert analysis is essential for professionals, creators, and enthusiasts alike.\n\nThis article breaks down the core fundamentals, market shifts, and future trajectories surrounding ${item.cat}. Our autonomous editorial engine continuously parses high-intent search queries and consumer interest patterns to bring you structured, actionable knowledge right here on TrendsNow.site.\n\nAs adoption accelerates across global and local markets, understanding these developments will empower you to make smarter decisions, optimize your workflows, and maintain a competitive edge. Explore our daily published articles for more exclusive insights.`
-  }));
-
-  const [blogs, setBlogs] = useState<Blog[]>(initialBlogs);
+  const [blogs, setBlogs] = useState(initialBlogs);
   const [newBlogTitle, setNewBlogTitle] = useState('');
   const [newBlogCategory, setNewBlogCategory] = useState('Technology');
   const [newBlogContent, setNewBlogContent] = useState('');
@@ -91,16 +56,12 @@ export default function App() {
   const masterTrends = [
     { id: 1, title: "AI Code Assistants & Copilots", category: "Technology", volume: "3.4M searches", growth: "+912%" },
     { id: 2, title: "Global Stock Market Bull Run", category: "Finance", volume: "2.8M searches", growth: "+645%" },
-    { id: 3, title: "Blockbuster Sci-Fi Movie Premiere", category: "Entertainment", volume: "4.1M searches", growth: "+880%" },
-    { id: 4, title: "Global Renewable Energy Summit", category: "Global News", volume: "1.9M searches", growth: "+410%" },
-    { id: 5, title: "Esports World Championship Finals", category: "Gaming", volume: "2.6M searches", growth: "+750%" },
-    { id: 6, title: "Web3 & Crypto Liquidity Surge", category: "Crypto", volume: "2.2M searches", growth: "+590%" }
+    { id: 3, title: "Blockbuster Sci-Fi Movie Premiere", category: "Entertainment", volume: "4.1M searches", growth: "+880%" }
   ];
 
   const nextExplorePredictions = [
     { id: 1, topic: "Quantum Computing Hardware Scalability", expectedPeak: "Next 48 Hours", category: "Technology", confidence: "95%" },
-    { id: 2, topic: "Decentralized Energy Grid Networks", expectedPeak: "Next 3 Days", category: "Global News", confidence: "91%" },
-    { id: 3, topic: "Neural Interface Gaming Controllers", expectedPeak: "This Weekend", category: "Gaming", confidence: "93%" }
+    { id: 2, topic: "Decentralized Energy Grid Networks", expectedPeak: "Next 3 Days", category: "Global News", confidence: "91%" }
   ];
 
   const filteredBlogs = blogs.filter(b => 
@@ -128,7 +89,7 @@ export default function App() {
   const handlePublishBlog = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBlogTitle || !newBlogContent) return;
-    const newEntry: Blog = {
+    const newEntry = {
       id: blogs.length + 1,
       title: newBlogTitle,
       category: newBlogCategory,
@@ -140,7 +101,7 @@ export default function App() {
     setBlogs([newEntry, ...blogs]);
     setNewBlogTitle('');
     setNewBlogContent('');
-    alert('SEO Article published successfully and live on blog feed!');
+    alert('SEO Article published successfully!');
   };
 
   const handleGenerateScript = (e: React.FormEvent) => {
@@ -148,7 +109,7 @@ export default function App() {
     if (!creatorTopic) return;
     setIsGenerating(true);
     setTimeout(() => {
-      setGeneratedScript(`[HOOK - 0-10s]: "Kya aapko pata hai ${creatorTopic} ke baare mein yeh viral sachai?"\n\n[BODY - 10-50s]: Detailed breakdown of ${creatorTopic} optimized for ${creatorDuration} in ${creatorLang}.\n\n[OUTRO - 50-60s]: Like, share, and subscribe to TrendsNow.site for more live intelligence!`);
+      setGeneratedScript(`[HOOK]: "${creatorTopic} ke baare mein yeh sachai aap nahi jante!"\n\n[BODY]: Detailed breakdown of ${creatorTopic}.\n\n[OUTRO]: Like & Subscribe to TrendsNow.site!`);
       setIsGenerating(false);
     }, 1000);
   };
@@ -164,7 +125,7 @@ export default function App() {
             <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
               TrendsNow<span className="text-orange-500">.site</span>
             </h1>
-            <p className="text-xs text-slate-400">Autonomous SEO Publication & Search Intelligence</p>
+            <p className="text-xs text-slate-400">Autonomous SEO Publication</p>
           </div>
           
           <nav className="hidden md:flex items-center gap-2 ml-8 bg-slate-950 p-1 rounded-xl border border-slate-800">
@@ -182,14 +143,8 @@ export default function App() {
               <option className="bg-slate-900">English</option>
               <option className="bg-slate-900">Hindi</option>
               <option className="bg-slate-900">Hinglish</option>
-              <option className="bg-slate-900">Spanish</option>
-              <option className="bg-slate-900">French</option>
             </select>
           </div>
-
-          <span className="hidden sm:flex px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Daily Auto-Publishing Active
-          </span>
 
           {loggedAdminEmail ? (
             <div className="flex items-center gap-2">
@@ -214,15 +169,132 @@ export default function App() {
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                   <BookOpen className="w-6 h-6 text-orange-500" /> Daily SEO Articles & Insights
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">Autonomous publishing engine delivering fresh 250-300 words articles daily.</p>
+                <p className="text-xs text-slate-400 mt-1">Autonomous publishing engine delivering fresh articles daily.</p>
               </div>
               <div className="flex items-center gap-3 w-full md:w-auto">
                 <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
-                  <option>All Categories</option><option>Technology</option><option>Finance</option><option>Entertainment</option><option>Global News</option><option>Gaming</option><option>Crypto</option><option>Startups</option><option>Sports</option><option>Health</option><option>Politics</option><option>Real Estate</option>
+                  <option>All Categories</option><option>Technology</option><option>Finance</option><option>Entertainment</option><option>Global News</option>
                 </select>
               </div>
             </div>
 
             <div className="relative mb-6">
               <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-              <input type="text" placeholder="Search published articles, SEO keywords..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text
+              <input type="text" placeholder="Search published articles, SEO keywords..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 shadow-inner" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {filteredBlogs.map((blog) => (
+                <article key={blog.id} className="bg-slate-900/60 border border-slate-800 hover:border-orange-500/40 transition rounded-2xl p-8 shadow-xl flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3 text-xs text-slate-400">
+                      <span className="px-3 py-1 bg-orange-500/10 text-orange-400 font-medium rounded-full border border-orange-500/20">{blog.category}</span>
+                      <span>{blog.readTime} • {blog.date}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3">{blog.title}</h3>
+                    <div className="text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md border border-emerald-500/20 mb-4 inline-block font-mono">
+                      SEO: {blog.seoKeywords}
+                    </div>
+                    <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                      {blog.content}
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-slate-400">Published via Autonomous Engine</span>
+                    <button onClick={() => alert(`Reading full article: ${blog.title}`)} className="text-orange-400 font-semibold hover:underline">Read Full Article &rarr;</button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'trends' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-orange-500" /> Search Intelligence & Live Volumes
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {masterTrends.map((trend) => (
+                <div key={trend.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-lg">
+                  <span className="px-3 py-1 bg-orange-500/10 text-orange-400 text-xs font-medium rounded-full border border-orange-500/20">{trend.category}</span>
+                  <h3 className="text-lg font-bold text-white mt-3 mb-2">{trend.title}</h3>
+                  <p className="text-sm text-slate-400">Search Volume: <strong className="text-white">{trend.volume}</strong></p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'explore' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Compass className="w-6 h-6 text-orange-500" /> Next Explore & Emerging Predictions
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {nextExplorePredictions.map(item => (
+                <div key={item.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                  <span className="px-3 py-1 bg-amber-500/10 text-amber-400 text-xs font-medium rounded-full border border-amber-500/20">{item.category}</span>
+                  <h3 className="text-lg font-bold text-white mt-3 mb-2">{item.topic}</h3>
+                  <p className="text-sm text-slate-400">Peak Window: <strong className="text-white">{item.expectedPeak}</strong> ({item.confidence} Accuracy)</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'creator' && (
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 max-w-3xl mx-auto shadow-2xl">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-orange-500" /> Autonomous Creator Studio
+            </h2>
+            <form onSubmit={handleGenerateScript} className="space-y-4 mt-6">
+              <input type="text" placeholder="Enter topic..." value={creatorTopic} onChange={(e) => setCreatorTopic(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" />
+              <button type="submit" disabled={isGenerating} className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">
+                {isGenerating ? 'Generating...' : 'Generate Script'}
+              </button>
+            </form>
+            {generatedScript && (
+              <div className="mt-8 bg-slate-950 border border-slate-800 rounded-xl p-6">
+                <pre className="text-sm text-slate-300 whitespace-pre-wrap font-sans">{generatedScript}</pre>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {isAdminOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative">
+            <button onClick={() => setIsAdminOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white p-2"><X className="w-5 h-5" /></button>
+            
+            {!loggedAdminEmail ? (
+              <form onSubmit={handleEmailLogin} className="space-y-4 py-4">
+                <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                  <ShieldCheck className="w-6 h-6 text-orange-500" /> Secure Admin Gateway
+                </h3>
+                <p className="text-sm text-slate-400 mb-4">Enter your administrator email.</p>
+                <input type="email" placeholder="sachininsan2015@gmail.com" value={inputEmail} onChange={(e) => setInputEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" />
+                {loginError && <p className="text-xs text-red-500 mt-1">Access Denied: Only registered admin email allowed.</p>}
+                <button type="submit" className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">Verify & Enter</button>
+              </form>
+            ) : (
+              <div className="space-y-6 py-2">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2"><LayoutDashboard className="w-5 h-5 text-orange-500" /> Admin Dashboard</h3>
+                  <button onClick={handleAdminLogout} className="px-3 py-1 bg-red-500/10 text-red-400 text-xs rounded-lg">Logout</button>
+                </div>
+                <form onSubmit={handlePublishBlog} className="space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">Publish New Article</h4>
+                  <input type="text" placeholder="Title" value={newBlogTitle} onChange={(e) => setNewBlogTitle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white" />
+                  <textarea placeholder="Content..." value={newBlogContent} onChange={(e) => setNewBlogContent(e.target.value)} rows={4} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white"></textarea>
+                  <button type="submit" className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg">Publish Now</button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
